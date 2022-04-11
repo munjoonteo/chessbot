@@ -5,10 +5,29 @@ CBoard::CBoard() : CBoard::CBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w
 
 CBoard::CBoard(std::string fen)  {
     // TODO initialise with FEN notation
+    // FEN Notation explained:
+    // Fields are separated by spaces
+
+    // Field 1: Piece arrangement
+    // Upper case letters represent White's pieces
+    // Lower case letters represent Black's pieces
+    // A slash denotes the end of a rank. Ranks start from 8 down to 1.
+    // A number denotes a certain number of consecutive empty squares
+
+    // Field 2: Side to move (w or b)
+    // Field 3: Castling availability (White king/queenside, Black king/queenside)
+    // Field 4: En Passant target square in algebraic notation
+    // Field 5: Halfmove clock
+    // Field 6: Fullmove clock
 
     sideToMove = enumColour::white;
-    castling = 15; // 1111 in binary is 15 in decimal
+
+    // 1111 in binary is 15 in decimal
+    castling = 15;
+
+    // No possible en passant square (corresponds to - in FEN notation)
     enPassant = -1;
+
     halfmoves = 0;
     fullmoves = 0;
 }

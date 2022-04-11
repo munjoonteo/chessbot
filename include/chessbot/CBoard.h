@@ -23,17 +23,18 @@ class CBoard {
         const int SIZE = 8;
 
         // Elements correspond to enum enumPiece
-        // i.e. pieceBB[0] is a bitboard representing all white pieces
+        // i.e. pieceBB[0] is a bitboard representing all White pieces
         U64 pieceBB[8];
 
-        // Current side to move (white or black)
+        // Current side to move (White or Black)
         enumColour sideToMove;
 
         // Castling ability represented as 4 bits
-        // Corresponds to FEN notation KQkq (white king/queenside, black king/queenside)
+        // Corresponds to FEN notation KQkq (White king/queenside, Black king/queenside)
         int castling;
 
         // Square representing the possible en passant target
+        // This can be casted to an enumSquare value (0 - 63)
         int enPassant;
 
         // Half-move clock
@@ -43,4 +44,7 @@ class CBoard {
         // Full-move counter
         // Incremented after Black's move
         int fullmoves;
+
+        // TODO
+        // Repeated positions count (for stalemates)
 };
