@@ -16,8 +16,8 @@ class CBoard {
         U64 getPieceSet(enumPiece piece) const;
         U64 getPieceSet(enumPiece piece, enumPiece colour) const;
         int getSquare(enumPiece board, int square);
-        void setSquare(enumPiece board, enumSquares square);
-        void unsetSquare(enumPiece board, enumSquares square);
+        void setSquare(enumPiece board, enumSquare square);
+        void unsetSquare(enumPiece board, enumSquare square);
         void printBB(enumPiece board);
     private:
         const int SIZE = 8;
@@ -34,7 +34,7 @@ class CBoard {
         int castling;
 
         // Square representing the possible en passant target
-        U64 enPassant;
+        int enPassant;
 
         // Half-move clock
         // Enforces 50-move rule, reset after captures/pawn moves, incremented otherwise

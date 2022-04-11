@@ -1,9 +1,7 @@
 #include <iostream>
 #include "chessbot/CBoard.h"
 
-CBoard::CBoard() : CBoard::CBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
-
-}
+CBoard::CBoard() : CBoard::CBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {}
 
 CBoard::CBoard(std::string fen)  {
     // TODO initialise with FEN notation
@@ -41,12 +39,12 @@ int CBoard::getSquare(enumPiece board, int square) {
 }
 
 // Sets the given square on the given bitboard to 1, meaning it is occupied
-void CBoard::setSquare(enumPiece board, enumSquares square) {
+void CBoard::setSquare(enumPiece board, enumSquare square) {
     pieceBB[board] |= (1ULL << square);
 }
 
 // Sets the given square on the given bitboard to 0, meaning it is unoccupied
-void CBoard::unsetSquare(enumPiece board, enumSquares square) {
+void CBoard::unsetSquare(enumPiece board, enumSquare square) {
     if (CBoard::getSquare(board, square)) pieceBB[board] ^= (1ULL << square);
 }
 
