@@ -8,7 +8,7 @@ CBoard::CBoard(std::string fen)  {
 
     sideToMove = enumColour::white;
     castling = 15; // 1111 in binary is 15 in decimal
-    enPassant = 0;
+    enPassant = -1;
     halfmoves = 0;
     fullmoves = 0;
 }
