@@ -1,3 +1,6 @@
+#ifndef ENUMS_H
+#define ENUMS_H
+
 enum enumPiece {
     nWhite,  // any white piece
     nBlack,  // any black piece
@@ -24,3 +27,5 @@ enum enumSquare {
     a2, b2, c2, d2, e2, f2, g2, h2,
     a1, b1, c1, d1, e1, f1, g1, h1,
 };
+
+#endif

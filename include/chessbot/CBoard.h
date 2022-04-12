@@ -22,6 +22,8 @@ class CBoard {
     private:
         const int SIZE = 8;
 
+        void parseFENPieces(std::string fen);
+
         // Elements correspond to enum enumPiece
         // i.e. pieceBB[0] is a bitboard representing all White pieces
         U64 pieceBB[8];
