@@ -1,7 +1,14 @@
 #include <iostream>
-#include "chessbot/CBoard.h"
+#include <sstream>
 
-CBoard::CBoard() : CBoard::CBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {}
+#include "chessbot/CBoard.h"
+#include "chessbot/constants.h"
+
+CBoard::CBoard()
+    try : CBoard::CBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w xQkq - 0 1") {
+    } catch (std::invalid_argument& e) {
+        throw e;
+    }
 
 CBoard::CBoard(std::string fen)  {
     // TODO initialise with FEN notation
@@ -20,16 +27,78 @@ CBoard::CBoard(std::string fen)  {
     // Field 5: Halfmove clock
     // Field 6: Fullmove clock
 
-    sideToMove = enumColour::white;
 
-    // 1111 in binary is 15 in decimal
-    castling = 15;
+    std::stringstream ss(fen);
+    std::string field;
+    int currField = 0;
 
-    // No possible en passant square (corresponds to - in FEN notation)
-    enPassant = -1;
+    while (ss >> field) {
+        switch(currField) {
+            case 0:
+                CBoard::parseFENPieces(field);
+                break;
+            case 1:
+                if (field != "w" or field != "b") throw std::invalid_argument("Invalid FEN string");
 
-    halfmoves = 0;
-    fullmoves = 0;
+                sideToMove = (field == "w") ? enumColour::white : enumColour::black;
+
+                break;
+            case 2:
+                if (field.size() != 4) throw std::invalid_argument("Invalid FEN string");
+
+                castling = 0;
+
+                for (int i = 0; i < 4; ++i) {
+                    std::cout << field[i] << "\n";
+                    if (field[i] == Constants::VALID_CASTLES[i]) {
+                        castling &= Constants::CASTLE_CONSTANTS[i];
+                    } else if (field[i] == '_') {
+                        continue;
+                    } else {
+                        throw std::invalid_argument("Invalid FEN string");
+                    }
+                }
+
+                break;
+            case 3:
+                if (field == "-") {
+                    enPassant = -1;
+                } else {
+                    try {
+                        enPassant = Constants::squareStringEnumMap.at(field);
+                    } catch (std::out_of_range& e) {
+                        throw std::invalid_argument("Invalid FEN string");
+                    }
+                }
+                break;
+            case 4:
+                try {
+                    halfmoves = std::stoi(field);
+                } catch (std::invalid_argument& e) {
+                    throw std::invalid_argument("Invalid FEN string");
+                } catch (std::out_of_range& e) {
+                    throw std::invalid_argument("Invalid FEN string");
+                }
+
+                break;
+            case 5:
+                try {
+                    fullmoves = std::stoi(field);
+                } catch (std::invalid_argument& e) {
+                    throw std::invalid_argument("Invalid FEN string");
+                } catch (std::out_of_range& e) {
+                    throw std::invalid_argument("Invalid FEN string");
+                }
+
+                break;
+        }
+
+        ++currField;
+    }
+}
+
+void CBoard::parseFENPieces(std::string fen) {
+
 }
 
 void CBoard::changeTurn() {
