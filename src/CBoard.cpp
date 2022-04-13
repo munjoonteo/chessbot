@@ -5,7 +5,7 @@
 #include "chessbot/constants.h"
 
 CBoard::CBoard()
-    try : CBoard::CBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w xQkq - 0 1") {
+    try : CBoard::CBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
     } catch (std::invalid_argument& e) {
         throw e;
     }
