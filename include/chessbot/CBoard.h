@@ -15,7 +15,7 @@ class CBoard {
         // Utility functions
         U64 getPieceSet(enumPiece piece) const;
         U64 getPieceSet(enumPiece piece, enumPiece colour) const;
-        int getSquare(enumPiece board, int square);
+        int getSquare(enumPiece board, enumSquare square);
         void setSquare(enumPiece board, enumSquare square);
         void unsetSquare(enumPiece board, enumSquare square);
         void printBB(enumPiece board);

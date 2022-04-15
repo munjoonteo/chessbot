@@ -35,10 +35,15 @@ CBoard::CBoard(std::string fen)  {
     while (ss >> field) {
         switch(currField) {
             case 0:
-                CBoard::parseFENPieces(field);
+                try {
+                    CBoard::parseFENPieces(field);
+                } catch(std::invalid_argument& e) {
+                    throw e;
+                }
+
                 break;
             case 1:
-                if (field != "w" or field != "b") throw std::invalid_argument("Invalid FEN string");
+                if (field != "w" and field != "b") throw std::invalid_argument("Invalid FEN string");
 
                 sideToMove = (field == "w") ? enumColour::white : enumColour::black;
 
@@ -49,7 +54,6 @@ CBoard::CBoard(std::string fen)  {
                 castling = 0;
 
                 for (int i = 0; i < 4; ++i) {
-                    std::cout << field[i] << "\n";
                     if (field[i] == Constants::VALID_CASTLES[i]) {
                         castling &= Constants::CASTLE_CONSTANTS[i];
                     } else if (field[i] == '_') {
@@ -70,6 +74,7 @@ CBoard::CBoard(std::string fen)  {
                         throw std::invalid_argument("Invalid FEN string");
                     }
                 }
+
                 break;
             case 4:
                 try {
@@ -98,7 +103,44 @@ CBoard::CBoard(std::string fen)  {
 }
 
 void CBoard::parseFENPieces(std::string fen) {
+    std::unordered_map<char, enumPiece> pieceToEnumMap = {
+        {'k', enumPiece::nKing},
+        {'q', enumPiece::nQueen},
+        {'b', enumPiece::nBishop},
+        {'n', enumPiece::nKnight},
+        {'r', enumPiece::nRook},
+        {'p', enumPiece::nPawn}
+    };
 
+    int currRank = 8;
+    int currFile = 0;
+
+    std::stringstream ss(fen);
+    std::string rank;
+
+    while (ss >> rank) {
+        for (auto c : rank) {
+            int cNum = c - '0';
+            if (cNum <= 0) {
+                // throw std::invalid_argument("Invalid FEN string");
+            } else if (cNum >= 1 and cNum <= 9) {
+                currFile += cNum;
+            } else {
+                auto currSquare = static_cast<enumSquare>(currRank * SIZE + currFile);
+                CBoard::setSquare(pieceToEnumMap[tolower(c)], currSquare);
+
+                if (c >= 'A' and c <= 'Z') {
+                    CBoard::setSquare(enumPiece::nWhite, currSquare);
+                } else if (c >= 'a' and c <= 'z') {
+                    CBoard::setSquare(enumPiece::nBlack, currSquare);
+                }
+
+                ++currFile;
+            }
+        }
+
+        --currRank;
+    }
 }
 
 void CBoard::changeTurn() {
@@ -122,7 +164,7 @@ U64 CBoard::getPieceSet(enumPiece piece, enumPiece colour) const {
 
 // Returns 1 if there is a piece on the given square on the given bitboard
 // Returns 0 otherwise
-int CBoard::getSquare(enumPiece board, int square) {
+int CBoard::getSquare(enumPiece board, enumSquare square) {
     return (pieceBB[board] & (1ULL << square)) ? 1 : 0;
 }
 
@@ -145,7 +187,8 @@ void CBoard::printBB(enumPiece board) {
 
         for (int file = 0; file < SIZE; ++file) {
             // Get the index of the bit corresponding to the current rank and file
-            std::cout << " " << getSquare(board, rank * SIZE + file);
+            auto currSquare = static_cast<enumSquare>(rank * SIZE + file);
+            std::cout << " " << getSquare(board, currSquare);
         }
 
         std::cout << "\n";
