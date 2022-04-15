@@ -11,7 +11,6 @@ CBoard::CBoard()
     }
 
 CBoard::CBoard(std::string fen)  {
-    // TODO initialise with FEN notation
     // FEN Notation explained:
     // Fields are separated by spaces
 
