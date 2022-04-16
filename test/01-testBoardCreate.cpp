@@ -3,6 +3,7 @@
 #include <catch2/catch_test_macros.hpp>
 
 #include "chessbot/CBoard.h"
+#include "chessbot/constants.h"
 
 void checkBoard(CBoard board, U64 expected[]) {
     for (int i = 0; i < 8; ++i) {
@@ -26,6 +27,13 @@ TEST_CASE("Create board - Initial position") {
     };
 
     checkBoard(board, expected);
+
+    CHECK(board.getCastleState() == (
+        Constants::WHITE_KINGSIDE_CASTLE |
+        Constants::WHITE_QUEENSIDE_CASTLE |
+        Constants::BLACK_KINGSIDE_CASTLE |
+        Constants::BLACK_QUEENSIDE_CASTLE
+    ));
 }
 
 TEST_CASE("Create board - Kiwipete position") {
@@ -43,6 +51,13 @@ TEST_CASE("Create board - Kiwipete position") {
     };
 
     checkBoard(board, expected);
+
+    CHECK(board.getCastleState() == (
+        Constants::WHITE_KINGSIDE_CASTLE |
+        Constants::WHITE_QUEENSIDE_CASTLE |
+        Constants::BLACK_KINGSIDE_CASTLE |
+        Constants::BLACK_QUEENSIDE_CASTLE
+    ));
 }
 
 TEST_CASE("Create board - sparse, no castles") {
@@ -60,6 +75,8 @@ TEST_CASE("Create board - sparse, no castles") {
     };
 
     checkBoard(board, expected);
+
+    CHECK(board.getCastleState() == 0);
 }
 
 TEST_CASE("Create board - some castles") {
@@ -77,4 +94,9 @@ TEST_CASE("Create board - some castles") {
     };
 
     checkBoard(board, expected);
+
+    CHECK(board.getCastleState() == (
+        Constants::BLACK_KINGSIDE_CASTLE |
+        Constants::BLACK_QUEENSIDE_CASTLE
+    ));
 }
