@@ -26,7 +26,6 @@ CBoard::CBoard(std::string fen)  {
     // Field 5: Halfmove clock
     // Field 6: Fullmove clock
 
-
     std::stringstream ss(fen);
     std::string field;
     int currField = 0;
@@ -48,14 +47,14 @@ CBoard::CBoard(std::string fen)  {
 
                 break;
             case 2:
-                if (field.size() != 4) throw std::invalid_argument("Invalid FEN string");
+                if (field.size() < 1 or field.size() > 4) throw std::invalid_argument("Invalid FEN string");
 
                 castling = 0;
 
-                for (int i = 0; i < 4; ++i) {
-                    if (field[i] == Constants::VALID_CASTLES[i]) {
-                        castling &= Constants::CASTLE_CONSTANTS[i];
-                    } else if (field[i] == '_') {
+                for (std::size_t i = 0; i < field.size(); ++i) {
+                    if (Constants::CASTLE_STRING_TO_INT_MAP.contains(field[i])) {
+                        castling &= Constants::CASTLE_STRING_TO_INT_MAP.at(field[i]);
+                    } else if (field[i] == '-') {
                         continue;
                     } else {
                         throw std::invalid_argument("Invalid FEN string");
@@ -68,7 +67,7 @@ CBoard::CBoard(std::string fen)  {
                     enPassant = -1;
                 } else {
                     try {
-                        enPassant = Constants::squareStringEnumMap.at(field);
+                        enPassant = Constants::SQUARE_STRING_TO_ENUM_MAP.at(field);
                     } catch (std::out_of_range& e) {
                         throw std::invalid_argument("Invalid FEN string");
                     }

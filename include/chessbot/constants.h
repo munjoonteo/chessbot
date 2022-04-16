@@ -11,15 +11,14 @@ namespace Constants {
     const int BLACK_KINGSIDE_CASTLE = 2;
     const int BLACK_QUEENSIDE_CASTLE = 1;
 
-    const char VALID_CASTLES[4] = {'K', 'Q', 'k', 'q'};
-    const int CASTLE_CONSTANTS[4] = {
-        Constants::WHITE_KINGSIDE_CASTLE,
-        Constants::WHITE_QUEENSIDE_CASTLE,
-        Constants::BLACK_KINGSIDE_CASTLE,
-        Constants::BLACK_QUEENSIDE_CASTLE
+    const std::unordered_map<char, int> CASTLE_STRING_TO_INT_MAP = {
+        {'K', WHITE_KINGSIDE_CASTLE},
+        {'Q', WHITE_QUEENSIDE_CASTLE},
+        {'k', BLACK_KINGSIDE_CASTLE},
+        {'q', BLACK_QUEENSIDE_CASTLE}
     };
 
-    const std::unordered_map<std::string, enumSquare> squareStringEnumMap = {
+    const std::unordered_map<std::string, enumSquare> SQUARE_STRING_TO_ENUM_MAP = {
         {"a8", enumSquare::a8},
         {"b8", enumSquare::b8},
         {"c8", enumSquare::c8},
