@@ -36,6 +36,7 @@ CBoard::CBoard(std::string fen)  {
     while (ss >> field) {
         switch(currField) {
             case 0:
+                // Piece arrangement
                 try {
                     CBoard::parseFENPieces(field);
                 } catch(std::invalid_argument& e) {
@@ -44,12 +45,14 @@ CBoard::CBoard(std::string fen)  {
 
                 break;
             case 1:
+                // Side to move
                 if (field != "w" and field != "b") throw std::invalid_argument("Invalid FEN string");
 
                 sideToMove = (field == "w") ? enumColour::white : enumColour::black;
 
                 break;
             case 2:
+                // Castling availability
                 if (field.size() < 1 or field.size() > 4) throw std::invalid_argument("Invalid FEN string");
 
                 castling = 0;
@@ -66,6 +69,7 @@ CBoard::CBoard(std::string fen)  {
 
                 break;
             case 3:
+                // En Passant
                 if (field == "-") {
                     enPassant = -1;
                 } else {
@@ -78,6 +82,7 @@ CBoard::CBoard(std::string fen)  {
 
                 break;
             case 4:
+                // Halfmove count
                 try {
                     halfmoves = std::stoi(field);
                 } catch (std::invalid_argument& e) {
@@ -88,6 +93,7 @@ CBoard::CBoard(std::string fen)  {
 
                 break;
             case 5:
+                // Fullmove count
                 try {
                     fullmoves = std::stoi(field);
                 } catch (std::invalid_argument& e) {
