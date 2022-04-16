@@ -30,6 +30,9 @@ CBoard::CBoard(std::string fen)  {
     std::string field;
     int currField = 0;
 
+    halfmoves = 0;
+    fullmoves = 1;
+
     while (ss >> field) {
         switch(currField) {
             case 0:
@@ -174,6 +177,10 @@ void CBoard::setSquare(enumPiece board, enumSquare square) {
 // Sets the given square on the given bitboard to 0, meaning it is unoccupied
 void CBoard::unsetSquare(enumPiece board, enumSquare square) {
     if (CBoard::getSquare(board, square)) pieceBB[board] ^= (1ULL << square);
+}
+
+int CBoard::getCastleState() {
+    return castling;
 }
 
 void CBoard::printBB(enumPiece board) {

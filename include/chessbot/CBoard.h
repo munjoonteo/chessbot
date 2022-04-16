@@ -18,6 +18,7 @@ class CBoard {
         int getSquare(enumPiece board, enumSquare square);
         void setSquare(enumPiece board, enumSquare square);
         void unsetSquare(enumPiece board, enumSquare square);
+        int getCastleState();
         void printBB(enumPiece board);
     private:
         const int SIZE = 8;
