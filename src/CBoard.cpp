@@ -59,7 +59,7 @@ CBoard::CBoard(std::string fen)  {
 
                 for (std::size_t i = 0; i < field.size(); ++i) {
                     if (Constants::CASTLE_STRING_TO_INT_MAP.contains(field[i])) {
-                        castling &= Constants::CASTLE_STRING_TO_INT_MAP.at(field[i]);
+                        castling |= Constants::CASTLE_STRING_TO_INT_MAP.at(field[i]);
                     } else if (field[i] == '-') {
                         continue;
                     } else {
