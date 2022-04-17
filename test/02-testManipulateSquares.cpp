@@ -11,3 +11,15 @@ TEST_CASE("Getting a bitboard") {
     CHECK(board.getPieceSet(enumPiece::nWhite) == 72057594037927936);
     CHECK(board.getPieceSet(enumPiece::nKing, enumPiece::nWhite) == 72057594037927936);
 }
+
+TEST_CASE("Manipulating a square") {
+    CBoard board = CBoard("k7/8/8/8/8/8/8/7K b - - 0 1");
+
+    CHECK(board.getSquare(enumPiece::nBlack, enumSquare::a8));
+    board.unsetSquare(enumPiece::nBlack, enumSquare::a8);
+    CHECK(!board.getSquare(enumPiece::nBlack, enumSquare::a8));
+    board.unsetSquare(enumPiece::nBlack, enumSquare::a8);
+    CHECK(!board.getSquare(enumPiece::nBlack, enumSquare::a8));
+    board.setSquare(enumPiece::nBlack, enumSquare::a8);
+    CHECK(board.getSquare(enumPiece::nBlack, enumSquare::a8));
+}
