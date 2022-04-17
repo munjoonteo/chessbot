@@ -21,7 +21,7 @@ CBoard::CBoard(std::string fen)  {
     // A number denotes a certain number of consecutive empty squares
 
     // Field 2: Side to move (w or b)
-    // Field 3: Castling availability (White king/queenside, Black king/queenside)
+    // Field 3: castling_ availability (White king/queenside, Black king/queenside)
     // Field 4: En Passant target square in algebraic notation
     // Field 5: Halfmove clock
     // Field 6: Fullmove clock
@@ -30,8 +30,8 @@ CBoard::CBoard(std::string fen)  {
     std::string field;
     int currField = 0;
 
-    halfmoves = 0;
-    fullmoves = 1;
+    halfmoves_ = 0;
+    fullmoves_ = 1;
 
     while (ss >> field) {
         switch(currField) {
@@ -48,18 +48,18 @@ CBoard::CBoard(std::string fen)  {
                 // Side to move
                 if (field != "w" and field != "b") throw std::invalid_argument("Invalid FEN string");
 
-                sideToMove = (field == "w") ? enumColour::white : enumColour::black;
+                sideToMove_ = (field == "w") ? enumColour::white : enumColour::black;
 
                 break;
             case 2:
-                // Castling availability
+                // castling_ availability
                 if (field.size() < 1 or field.size() > 4) throw std::invalid_argument("Invalid FEN string");
 
-                castling = 0;
+                castling_ = 0;
 
                 for (std::size_t i = 0; i < field.size(); ++i) {
                     if (Constants::CASTLE_STRING_TO_INT_MAP.contains(field[i])) {
-                        castling |= Constants::CASTLE_STRING_TO_INT_MAP.at(field[i]);
+                        castling_ |= Constants::CASTLE_STRING_TO_INT_MAP.at(field[i]);
                     } else if (field[i] == '-') {
                         continue;
                     } else {
@@ -71,10 +71,10 @@ CBoard::CBoard(std::string fen)  {
             case 3:
                 // En Passant
                 if (field == "-") {
-                    enPassant = -1;
+                    enPassant_ = -1;
                 } else {
                     try {
-                        enPassant = Constants::SQUARE_STRING_TO_ENUM_MAP.at(field);
+                        enPassant_ = Constants::SQUARE_STRING_TO_ENUM_MAP.at(field);
                     } catch (std::out_of_range& e) {
                         throw std::invalid_argument("Invalid FEN string");
                     }
@@ -84,27 +84,27 @@ CBoard::CBoard(std::string fen)  {
             case 4:
                 // Halfmove count
                 try {
-                    halfmoves = std::stoi(field);
+                    halfmoves_ = std::stoi(field);
                 } catch (std::invalid_argument& e) {
                     throw std::invalid_argument("Invalid FEN string");
                 } catch (std::out_of_range& e) {
                     throw std::invalid_argument("Invalid FEN string");
                 }
 
-                if (halfmoves < 0) throw std::invalid_argument("Invalid FEN string");
+                if (halfmoves_ < 0) throw std::invalid_argument("Invalid FEN string");
 
                 break;
             case 5:
                 // Fullmove count
                 try {
-                    fullmoves = std::stoi(field);
+                    fullmoves_ = std::stoi(field);
                 } catch (std::invalid_argument& e) {
                     throw std::invalid_argument("Invalid FEN string");
                 } catch (std::out_of_range& e) {
                     throw std::invalid_argument("Invalid FEN string");
                 }
 
-                if (fullmoves < 0) throw std::invalid_argument("Invalid FEN string");
+                if (fullmoves_ < 0) throw std::invalid_argument("Invalid FEN string");
 
                 break;
         }
@@ -158,22 +158,22 @@ void CBoard::parseFENPieces(std::string fen) {
 }
 
 void CBoard::changeTurn() {
-    if (sideToMove == enumColour::white) {
-        sideToMove = enumColour::black;
+    if (sideToMove_ == enumColour::white) {
+        sideToMove_ = enumColour::black;
     } else {
-        sideToMove = enumColour::white;
-        ++fullmoves;
+        sideToMove_ = enumColour::white;
+        ++fullmoves_;
     }
 
-    ++halfmoves;
+    ++halfmoves_;
 }
 
 U64 CBoard::getPieceSet(enumPiece piece) const {
-    return pieceBB[piece];
+    return pieceBB_[piece];
 }
 
 U64 CBoard::getPieceSet(enumPiece piece, enumPiece colour) const {
-    return pieceBB[piece] & pieceBB[colour];
+    return pieceBB_[piece] & pieceBB_[colour];
 }
 
 // Returns 1 if there is a piece on the given square on the given bitboard
@@ -181,29 +181,29 @@ U64 CBoard::getPieceSet(enumPiece piece, enumPiece colour) const {
 int CBoard::getSquare(enumPiece board, enumSquare square) {
     if (square < 0 or square > 63) throw  std::invalid_argument("Invalid square");
 
-    return (pieceBB[board] & (1ULL << square)) ? 1 : 0;
+    return (pieceBB_[board] & (1ULL << square)) ? 1 : 0;
 }
 
 // Sets the given square on the given bitboard to 1, meaning it is occupied
 void CBoard::setSquare(enumPiece board, enumSquare square) {
     if (square < 0 or square > 63) throw  std::invalid_argument("Invalid square");
 
-    pieceBB[board] |= (1ULL << square);
+    pieceBB_[board] |= (1ULL << square);
 }
 
 // Sets the given square on the given bitboard to 0, meaning it is unoccupied
 void CBoard::unsetSquare(enumPiece board, enumSquare square) {
     if (square < 0 or square > 63) throw  std::invalid_argument("Invalid square");
 
-    if (CBoard::getSquare(board, square)) pieceBB[board] ^= (1ULL << square);
+    if (CBoard::getSquare(board, square)) pieceBB_[board] ^= (1ULL << square);
 }
 
-int CBoard::getCastleState() {
-    return castling;
+const int CBoard::getCastleState() {
+    return castling_;
 }
 
 void CBoard::printBB(enumPiece board) {
-    U64 target = pieceBB[board];
+    U64 target = pieceBB_[board];
 
     for (int rank = 0; rank < SIZE; ++rank) {
         // Print ranks on left

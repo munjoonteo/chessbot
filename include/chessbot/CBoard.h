@@ -18,7 +18,7 @@ class CBoard {
         int getSquare(enumPiece board, enumSquare square);
         void setSquare(enumPiece board, enumSquare square);
         void unsetSquare(enumPiece board, enumSquare square);
-        int getCastleState();
+        const int getCastleState();
         void printBB(enumPiece board);
     private:
         const int SIZE = 8;
@@ -26,27 +26,27 @@ class CBoard {
         void parseFENPieces(std::string fen);
 
         // Elements correspond to enum enumPiece
-        // i.e. pieceBB[0] is a bitboard representing all White pieces
-        U64 pieceBB[8];
+        // i.e. pieceBB_[0] is a bitboard representing all White pieces
+        U64 pieceBB_[8];
 
         // Current side to move (White or Black)
-        enumColour sideToMove;
+        enumColour sideToMove_;
 
-        // Castling ability represented as 4 bits
+        // castling_ ability represented as 4 bits
         // Corresponds to FEN notation KQkq (White king/queenside, Black king/queenside)
-        int castling;
+        int castling_;
 
         // Square representing the possible en passant target
         // This can be casted to an enumSquare value (0 - 63)
-        int enPassant;
+        int enPassant_;
 
         // Half-move clock
         // Enforces 50-move rule, reset after captures/pawn moves, incremented otherwise
-        int halfmoves;
+        int halfmoves_;
 
         // Full-move counter
         // Incremented after Black's move
-        int fullmoves;
+        int fullmoves_;
 
         // TODO
         // Repeated positions count (for stalemates)
