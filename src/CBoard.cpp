@@ -91,6 +91,8 @@ CBoard::CBoard(std::string fen)  {
                     throw std::invalid_argument("Invalid FEN string");
                 }
 
+                if (halfmoves < 0) throw std::invalid_argument("Invalid FEN string");
+
                 break;
             case 5:
                 // Fullmove count
@@ -101,6 +103,8 @@ CBoard::CBoard(std::string fen)  {
                 } catch (std::out_of_range& e) {
                     throw std::invalid_argument("Invalid FEN string");
                 }
+
+                if (fullmoves < 0) throw std::invalid_argument("Invalid FEN string");
 
                 break;
         }
