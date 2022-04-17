@@ -173,7 +173,7 @@ U64 CBoard::getPieceSet(enumPiece piece) const {
 }
 
 U64 CBoard::getPieceSet(enumPiece piece, enumPiece colour) const {
-    return pieceBB[piece] && pieceBB[colour];
+    return pieceBB[piece] & pieceBB[colour];
 }
 
 // Returns 1 if there is a piece on the given square on the given bitboard
