@@ -100,3 +100,12 @@ TEST_CASE("Create board - some castles") {
         Constants::BLACK_QUEENSIDE_CASTLE
     ));
 }
+
+TEST_CASE("Create board - invalid FEN string") {
+    // Invalid characters
+    CHECK_THROWS_AS(CBoard("8/8/8/8/8/8/K6x w - - 0 1"), std::invalid_argument);
+    CHECK_THROWS_AS(CBoard("8/8/8/8/8/8/K6k t - - 0 1"), std::invalid_argument);
+    CHECK_THROWS_AS(CBoard("8/8/8/8/8/8/K6k w sdfa - 0 1"), std::invalid_argument);
+    CHECK_THROWS_AS(CBoard("8/8/8/8/8/8/K6k w sdfa x1 0 1"), std::invalid_argument);
+
+}
