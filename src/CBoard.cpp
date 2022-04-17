@@ -129,7 +129,7 @@ void CBoard::parseFENPieces(std::string fen) {
         for (auto c : rank) {
             int cNum = c - '0';
             if (cNum <= 0) {
-                // throw std::invalid_argument("Invalid FEN string");
+                throw std::invalid_argument("Invalid FEN string");
             } else if (cNum >= 1 and cNum <= 9) {
                 currFile += cNum;
             } else {
