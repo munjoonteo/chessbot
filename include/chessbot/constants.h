@@ -18,6 +18,15 @@ namespace Constants {
         {'q', BLACK_QUEENSIDE_CASTLE}
     };
 
+    const std::unordered_map<char, enumPiece> PIECE_TO_ENUM_MAP = {
+        {'k', enumPiece::nKing},
+        {'q', enumPiece::nQueen},
+        {'b', enumPiece::nBishop},
+        {'n', enumPiece::nKnight},
+        {'r', enumPiece::nRook},
+        {'p', enumPiece::nPawn}
+    };
+
     const std::unordered_map<std::string, enumSquare> SQUARE_STRING_TO_ENUM_MAP = {
         {"a8", enumSquare::a8},
         {"b8", enumSquare::b8},
