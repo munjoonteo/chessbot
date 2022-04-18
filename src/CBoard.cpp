@@ -30,6 +30,10 @@ CBoard::CBoard(std::string fen)  {
     std::string field;
     int currField = 0;
 
+    for (int i = 0; i < 8; ++i) pieceBB_[i] = 0ULL;
+
+    castling_ = 0;
+    enPassant_ = -1;
     halfmoves_ = 0;
     fullmoves_ = 1;
 
@@ -70,9 +74,7 @@ CBoard::CBoard(std::string fen)  {
                 break;
             case 3:
                 // En Passant
-                if (field == "-") {
-                    enPassant_ = -1;
-                } else {
+                if (field != "-") {
                     try {
                         enPassant_ = Constants::SQUARE_STRING_TO_ENUM_MAP.at(field);
                     } catch (std::out_of_range& e) {
