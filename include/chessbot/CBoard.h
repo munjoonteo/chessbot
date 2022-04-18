@@ -1,7 +1,9 @@
 #include <string>
+#include <unordered_map>
 
-#include "chessbot/enums.h"
-#include "chessbot/types.h"
+#include "enums.h"
+#include "types.h"
+#include "pieces/Piece.h"
 
 class CBoard {
     public:
@@ -28,6 +30,9 @@ class CBoard {
         // Elements correspond to enum enumPiece
         // i.e. pieceBB_[0] is a bitboard representing all White pieces
         U64 pieceBB_[8];
+
+        // Map of squares to pieces (the piece currently on that square)
+        std::unordered_map<enumSquare, Piece> pieceMap_;
 
         // Current side to move (White or Black)
         enumColour sideToMove_;
