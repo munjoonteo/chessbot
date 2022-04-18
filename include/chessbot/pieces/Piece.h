@@ -4,7 +4,10 @@
 
 class Piece {
     public:
-        Piece(enumColour colour, enumSquare startingSquare, char type);
+        Piece(enumColour colour = enumColour::white,
+              enumSquare startingSquare = enumSquare::a1,
+              char type = 'k'
+        );
         std::vector<enumSquare> getMoveset();
     private:
         enumColour colour_;
