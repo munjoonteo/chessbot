@@ -11,7 +11,7 @@ class Piece {
         std::vector<enumSquare> getMoveset();
     private:
         enumColour colour_;
-        enumPiece type_;
         enumSquare startingSquare_;
+        enumPiece type_;
         std::vector<enumSquare> moveset_;
 };
