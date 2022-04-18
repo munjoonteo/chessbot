@@ -17,10 +17,10 @@ class CBoard {
         // Utility functions
         U64 getPieceSet(enumPiece piece) const;
         U64 getPieceSet(enumPiece piece, enumPiece colour) const;
-        int getSquare(enumPiece board, enumSquare square);
+        int getSquare(enumPiece board, enumSquare square) const;
         void setSquare(enumPiece board, enumSquare square);
         void unsetSquare(enumPiece board, enumSquare square);
-        const int getCastleState();
+        int getCastleState() const;
         void printBB(enumPiece board);
     private:
         const int SIZE = 8;

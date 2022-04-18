@@ -182,7 +182,7 @@ U64 CBoard::getPieceSet(enumPiece piece, enumPiece colour) const {
 
 // Returns 1 if there is a piece on the given square on the given bitboard
 // Returns 0 otherwise
-int CBoard::getSquare(enumPiece board, enumSquare square) {
+int CBoard::getSquare(enumPiece board, enumSquare square) const {
     if (square < 0 or square > 63) throw  std::invalid_argument("Invalid square");
 
     return (pieceBB_[board] & (1ULL << square)) ? 1 : 0;
@@ -202,7 +202,7 @@ void CBoard::unsetSquare(enumPiece board, enumSquare square) {
     if (CBoard::getSquare(board, square)) pieceBB_[board] ^= (1ULL << square);
 }
 
-const int CBoard::getCastleState() {
+int CBoard::getCastleState() const {
     return castling_;
 }
 
