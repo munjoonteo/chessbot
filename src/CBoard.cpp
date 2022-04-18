@@ -124,30 +124,32 @@ void CBoard::parseFENPieces(std::string fen) {
     while (getline(ss, rank, '/')) {
         int currFile = 0;
 
-        for (auto c : rank) {
-            int cNum = c - '0';
-            if (cNum <= 0) {
-                throw std::invalid_argument("Invalid FEN string");
-            } else if (cNum >= 1 and cNum <= 9) {
-                currFile += cNum;
-            } else {
+        for (auto fenChar : rank) {
+            if (std::isdigit(fenChar)) {
+                currFile += fenChar - '0';
+            } else if (std::isalpha(fenChar)) {
                 auto currSquare = static_cast<enumSquare>(currRank * SIZE + currFile);
+                char fenCharLower = tolower(fenChar);
 
                 try {
-                    CBoard::setSquare(Constants::PIECE_TO_ENUM_MAP.at(tolower(c)), currSquare);
+                    CBoard::setSquare(Constants::PIECE_TO_ENUM_MAP.at(fenCharLower), currSquare);
                 } catch (std::out_of_range& e) {
                     throw std::invalid_argument("Invalid FEN string");
                 } catch(std::invalid_argument& e) {
                     throw e;
                 }
 
-                if (c >= 'A' and c <= 'Z') {
+                if (fenChar >= 'A' and fenChar <= 'Z') {
                     CBoard::setSquare(enumPiece::nWhite, currSquare);
-                } else if (c >= 'a' and c <= 'z') {
+                    pieceMap_[currSquare] = Piece(enumColour::white, currSquare, fenCharLower);
+                } else if (fenChar >= 'a' and fenChar <= 'z') {
                     CBoard::setSquare(enumPiece::nBlack, currSquare);
+                    pieceMap_[currSquare] = Piece(enumColour::black, currSquare, fenCharLower);
                 }
 
                 ++currFile;
+            } else {
+                throw std::invalid_argument("Invalid FEN string");
             }
         }
 
