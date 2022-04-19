@@ -21,7 +21,7 @@ CBoard::CBoard(std::string fen)  {
     // A number denotes a certain number of consecutive empty squares
 
     // Field 2: Side to move (w or b)
-    // Field 3: castling_ availability (White king/queenside, Black king/queenside)
+    // Field 3: Castling availability (White king/queenside, Black king/queenside)
     // Field 4: En Passant target square in algebraic notation
     // Field 5: Halfmove clock
     // Field 6: Fullmove clock
