@@ -33,7 +33,7 @@ CBoard::CBoard(std::string fen)  {
     for (int i = 0; i < 8; ++i) pieceBB_[i] = 0ULL;
 
     castling_ = 0;
-    enPassant_ = -1;
+    enPassant_ = enumSquare::no_sq;
     halfmoves_ = 0;
     fullmoves_ = 1;
 

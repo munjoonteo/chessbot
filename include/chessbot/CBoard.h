@@ -41,7 +41,7 @@ class CBoard {
 
         // Square representing the possible en passant target
         // This can be casted to an enumSquare value (0 - 63)
-        int enPassant_;
+        enumSquare enPassant_;
 
         // Half-move clock
         // Enforces 50-move rule, reset after captures/pawn moves, incremented otherwise
