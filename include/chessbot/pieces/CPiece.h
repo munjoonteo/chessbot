@@ -2,9 +2,9 @@
 
 #include "../enums.h"
 
-class Piece {
+class CPiece {
     public:
-        Piece(enumColour colour = enumColour::white,
+        CPiece(enumColour colour = enumColour::white,
               enumSquare startingSquare = enumSquare::a1,
               char type = 'k'
         );

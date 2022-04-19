@@ -141,10 +141,10 @@ void CBoard::parseFENPieces(std::string fen) {
 
                 if (fenChar >= 'A' and fenChar <= 'Z') {
                     CBoard::setSquare(enumPiece::nWhite, currSquare);
-                    pieceMap_[currSquare] = Piece(enumColour::white, currSquare, fenCharLower);
+                    pieceMap_[currSquare] = CPiece(enumColour::white, currSquare, fenCharLower);
                 } else if (fenChar >= 'a' and fenChar <= 'z') {
                     CBoard::setSquare(enumPiece::nBlack, currSquare);
-                    pieceMap_[currSquare] = Piece(enumColour::black, currSquare, fenCharLower);
+                    pieceMap_[currSquare] = CPiece(enumColour::black, currSquare, fenCharLower);
                 }
 
                 ++currFile;

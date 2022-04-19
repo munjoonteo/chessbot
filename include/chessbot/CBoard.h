@@ -3,7 +3,7 @@
 
 #include "enums.h"
 #include "types.h"
-#include "pieces/Piece.h"
+#include "pieces/CPiece.h"
 
 class CBoard {
     public:
@@ -32,7 +32,7 @@ class CBoard {
         U64 pieceBB_[8];
 
         // Map of squares to pieces (the piece currently on that square)
-        std::unordered_map<enumSquare, Piece> pieceMap_;
+        std::unordered_map<enumSquare, CPiece> pieceMap_;
 
         // Current side to move (White or Black)
         enumColour sideToMove_;

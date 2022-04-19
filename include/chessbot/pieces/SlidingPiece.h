@@ -1,7 +1,7 @@
-#include "Piece.h"
+#include "CPiece.h"
 #include "../types.h"
 
-class SlidingPiece: Piece {
+class SlidingPiece: CPiece {
     public:
         SlidingPiece();
         void generateMoveset();
