@@ -3,7 +3,7 @@
 
 #include "enums.h"
 #include "types.h"
-#include "pieces/CPiece.h"
+#include "CPiece.h"
 
 class CBoard {
     public:
