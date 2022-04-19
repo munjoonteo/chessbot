@@ -113,6 +113,9 @@ CBoard::CBoard(std::string fen)  {
 
         ++currField;
     }
+
+    CBoard::generateKingMovesets();
+    CBoard::generateKnightMovesets();
 }
 
 void CBoard::parseFENPieces(std::string fen) {
@@ -172,6 +175,14 @@ void CBoard::changeTurn() {
     ++halfmoves_;
 }
 
+U64 CBoard::getOccupiedSquares() const {
+    return pieceBB_[enumPiece::nWhite] | pieceBB_[enumPiece::nBlack];
+}
+
+U64 CBoard::getEmptySquares() const {
+    return ~CBoard::getOccupiedSquares();
+}
+
 U64 CBoard::getPieceSet(enumPiece piece) const {
     return pieceBB_[piece];
 }
@@ -195,6 +206,12 @@ void CBoard::setSquare(enumPiece board, enumSquare square) {
     pieceBB_[board] |= (1ULL << square);
 }
 
+U64 CBoard::setSquare(U64 board, int square) {
+    if (square < 0 or square > 63) throw  std::invalid_argument("Invalid square");
+
+    return board | (1ULL << square);
+}
+
 // Sets the given square on the given bitboard to 0, meaning it is unoccupied
 void CBoard::unsetSquare(enumPiece board, enumSquare square) {
     if (square < 0 or square > 63) throw  std::invalid_argument("Invalid square");
@@ -205,6 +222,93 @@ void CBoard::unsetSquare(enumPiece board, enumSquare square) {
 int CBoard::getCastleState() const {
     return castling_;
 }
+
+U64 CBoard::shiftNorthOne(U64 bitboard) {
+    return bitboard << 8;
+}
+
+U64 CBoard::shiftSouthOne(U64 bitboard) {
+    return bitboard >> 8;
+}
+
+U64 CBoard::wPawnPushTargets() {
+    return
+        CBoard::shiftNorthOne(
+                CBoard::getPieceSet(enumPiece::nPawn,
+                enumPiece::nWhite)
+        ) & CBoard::getEmptySquares();
+}
+
+U64 CBoard::bPawnPushTargets() {
+    return
+        CBoard::shiftSouthOne(
+                CBoard::getPieceSet(enumPiece::nPawn,
+                enumPiece::nBlack)
+        ) & CBoard::getEmptySquares();
+}
+
+U64 CBoard::wPawnDoublePushTargets() {
+    U64 singlePush = CBoard::wPawnPushTargets();
+    return CBoard::shiftNorthOne(singlePush) & CBoard::getEmptySquares() & CBoard::rank4;
+}
+
+U64 CBoard::bPawnDoublePushTargets() {
+    U64 singlePush = CBoard::bPawnPushTargets();
+    return CBoard::shiftSouthOne(singlePush) & CBoard::getEmptySquares() & CBoard::rank5;
+}
+
+U64 CBoard::wPawnsCanPush() {
+    return CBoard::shiftSouthOne(CBoard::getEmptySquares()) & CBoard::getPieceSet(enumPiece::nPawn, enumPiece::nWhite);
+}
+
+U64 CBoard::bPawnsCanPush() {
+    return CBoard::shiftNorthOne(CBoard::getEmptySquares()) & CBoard::getPieceSet(enumPiece::nPawn, enumPiece::nBlack);
+}
+
+U64 CBoard::wPawnsCanDoublePush() {
+    U64 emptySquares = CBoard::getEmptySquares();
+    U64 emptyRank3 = CBoard::shiftSouthOne(emptySquares & CBoard::rank4) & emptySquares;
+    return CBoard::getPieceSet(enumPiece::nPawn, enumPiece::nWhite) & CBoard::shiftSouthOne(emptyRank3);
+}
+
+U64 CBoard::bPawnsCanDoublePush() {
+    U64 emptySquares = CBoard::getEmptySquares();
+    U64 emptyRank6 = CBoard::shiftNorthOne(emptySquares & CBoard::rank5) & emptySquares;
+    return CBoard::getPieceSet(enumPiece::nPawn, enumPiece::nBlack) & CBoard::shiftNorthOne(emptyRank6);
+}
+
+void CBoard::generateKnightMovesets() {
+    // Starting from south-south-east move
+    const int directions[] = {15, 17, 10, -6, -15, -17, -10, 6};
+
+    for (int i = 0; i < 64; ++i) {
+        U64 bitboard = 0ULL;
+
+        for (auto dir : directions) {
+            int targetSquare = i + dir;
+            if (targetSquare >= 0 and targetSquare < 64) bitboard = CBoard::setSquare(bitboard, targetSquare);
+        }
+
+        knight_movesets_[i] = bitboard;
+    }
+}
+
+void CBoard::generateKingMovesets() {
+    // Starting from vertical upwards move
+    const int directions[] = {-8, -7, 1, 9, 8, 7, -1, -9};
+
+    for (int i = 0; i < 64; ++i) {
+        U64 bitboard = 0ULL;
+
+        for (auto dir : directions) {
+            int targetSquare = i + dir;
+            if (targetSquare >= 0 and targetSquare < 64) bitboard = CBoard::setSquare(bitboard, targetSquare);
+        }
+
+        king_movesets_[i] = bitboard;
+    }
+}
+
 
 void CBoard::printBB(enumPiece board) {
     U64 target = pieceBB_[board];
