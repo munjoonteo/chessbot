@@ -17,10 +17,13 @@ class CBoard {
         // Utility functions
         U64 getPieceSet(enumPiece piece) const;
         U64 getPieceSet(enumPiece piece, enumPiece colour) const;
+
         int getSquare(enumPiece board, enumSquare square) const;
         void setSquare(enumPiece board, enumSquare square);
         void unsetSquare(enumPiece board, enumSquare square);
+
         int getCastleState() const;
+
         void printBB(enumPiece board);
     private:
         void parseFENPieces(std::string fen);
