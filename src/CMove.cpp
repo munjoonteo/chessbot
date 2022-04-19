@@ -22,8 +22,8 @@ unsigned int CMove::getFlags() const {
 
 void CMove::setTo(enumSquare to) {
     auto toUnsigned = unsigned(to);
-    move_ &= ~0x3F;
-    move_ |= toUnsigned & 0x3F;
+    move_ &= ~0x3F; // Important to zero out the fields first
+    move_ |= toUnsigned & 0x3F; // Make sure to & it to ensure only the required 6 bits are set
 }
 
 void CMove::setFrom(enumSquare from) {
