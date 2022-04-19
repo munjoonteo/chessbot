@@ -7,10 +7,25 @@
 #include "enums.h"
 
 namespace Constants {
-    const int WHITE_KINGSIDE_CASTLE = 8;
-    const int WHITE_QUEENSIDE_CASTLE = 4;
-    const int BLACK_KINGSIDE_CASTLE = 2;
-    const int BLACK_QUEENSIDE_CASTLE = 1;
+    const unsigned int QUIET_FLAG = 0;
+    const unsigned int DOUBLE_PAWN_PUSH_FLAG = 1;
+    const unsigned int KING_CASTLE_FLAG = 2;
+    const unsigned int QUEEN_CASTLE_FLAG = 3;
+    const unsigned int CAPTURE_FLAG = 4;
+    const unsigned int EP_CAPTURE_FLAG = 5;
+    const unsigned int N_PROMO_FLAG = 8;
+    const unsigned int B_PROMO_FLAG = 9;
+    const unsigned int R_PROMO_FLAG = 10;
+    const unsigned int Q_PROMO_FLAG = 11;
+    const unsigned int N_PROMO_CAPTURE_FLAG = 12;
+    const unsigned int B_PROMO_CAPTURE_FLAG = 13;
+    const unsigned int R_PROMO_CAPTURE_FLAG = 14;
+    const unsigned int Q_PROMO_CAPTURE_FLAG = 15;
+
+    const unsigned int WHITE_KINGSIDE_CASTLE = 8;
+    const unsigned int WHITE_QUEENSIDE_CASTLE = 4;
+    const unsigned int BLACK_KINGSIDE_CASTLE = 2;
+    const unsigned int BLACK_QUEENSIDE_CASTLE = 1;
 
     const std::unordered_map<char, int> CASTLE_STRING_TO_INT_MAP = {
         {'K', WHITE_KINGSIDE_CASTLE},
