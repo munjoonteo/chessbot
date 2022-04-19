@@ -128,7 +128,7 @@ void CBoard::parseFENPieces(std::string fen) {
             if (std::isdigit(fenChar)) {
                 currFile += fenChar - '0';
             } else if (std::isalpha(fenChar)) {
-                auto currSquare = static_cast<enumSquare>(currRank * SIZE + currFile);
+                auto currSquare = static_cast<enumSquare>(currRank * 8 + currFile);
                 char fenCharLower = tolower(fenChar);
 
                 try {
@@ -153,12 +153,12 @@ void CBoard::parseFENPieces(std::string fen) {
             }
         }
 
-        if (currFile != SIZE) throw std::invalid_argument("Invalid FEN string");
+        if (currFile != 8) throw std::invalid_argument("Invalid FEN string");
 
         ++currRank;
     }
 
-    if (currRank != SIZE) throw std::invalid_argument("Invalid FEN string");
+    if (currRank != 8) throw std::invalid_argument("Invalid FEN string");
 }
 
 void CBoard::changeTurn() {
@@ -209,13 +209,13 @@ int CBoard::getCastleState() const {
 void CBoard::printBB(enumPiece board) {
     U64 target = pieceBB_[board];
 
-    for (int rank = 0; rank < SIZE; ++rank) {
+    for (int rank = 0; rank < 8; ++rank) {
         // Print ranks on left
-        std::cout << SIZE - rank << "  ";
+        std::cout << 8 - rank << "  ";
 
-        for (int file = 0; file < SIZE; ++file) {
+        for (int file = 0; file < 8; ++file) {
             // Get the index of the bit corresponding to the current rank and file
-            auto currSquare = static_cast<enumSquare>(rank * SIZE + file);
+            auto currSquare = static_cast<enumSquare>(rank * 8 + file);
             std::cout << " " << getSquare(board, currSquare);
         }
 
@@ -224,7 +224,7 @@ void CBoard::printBB(enumPiece board) {
 
     // Print files on bottom
     std::cout << "\n    ";
-    for (int file = 0; file < SIZE; ++file) {
+    for (int file = 0; file < 8; ++file) {
         std::cout << static_cast<char>('a' + file) << " ";
     }
 

@@ -23,8 +23,6 @@ class CBoard {
         int getCastleState() const;
         void printBB(enumPiece board);
     private:
-        const int SIZE = 8;
-
         void parseFENPieces(std::string fen);
 
         // Elements correspond to enum enumPiece
