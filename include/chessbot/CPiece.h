@@ -1,6 +1,7 @@
 #include <vector>
 
 #include "enums.h"
+#include "CMove.h"
 
 class CPiece {
     public:
@@ -8,10 +9,11 @@ class CPiece {
               enumSquare startingSquare = enumSquare::a1,
               char type = 'k'
         );
-        std::vector<enumSquare> getMoveset();
+
+        std::vector<CMove> getMoveset();
     private:
         enumColour colour_;
         enumSquare startingSquare_;
         enumPiece type_;
-        std::vector<enumSquare> moveset_;
+        std::vector<CMove> moveset_;
 };
