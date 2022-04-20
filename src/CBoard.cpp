@@ -10,7 +10,11 @@ CBoard::CBoard()
         throw e;
     }
 
-CBoard::CBoard(std::string fen)  {
+CBoard::CBoard(std::string fen) {
+    // Precompute non-sliding piece movesets
+    CBoard::generateKingMovesets();
+    CBoard::generateKnightMovesets();
+
     // FEN Notation explained:
     // Fields are separated by spaces
 
@@ -113,9 +117,6 @@ CBoard::CBoard(std::string fen)  {
 
         ++currField;
     }
-
-    CBoard::generateKingMovesets();
-    CBoard::generateKnightMovesets();
 }
 
 void CBoard::parseFENPieces(std::string fen) {
@@ -144,10 +145,18 @@ void CBoard::parseFENPieces(std::string fen) {
 
                 if (fenChar >= 'A' and fenChar <= 'Z') {
                     CBoard::setSquare(enumPiece::nWhite, currSquare);
-                    pieceMap_[currSquare] = CPiece(enumColour::white, currSquare, fenCharLower);
+                    pieceMap_[currSquare] = CPiece(enumColour::white,
+                                                   currSquare,
+                                                   fenCharLower,
+                                                   &knight_movesets_,
+                                                   &king_movesets_);
                 } else if (fenChar >= 'a' and fenChar <= 'z') {
                     CBoard::setSquare(enumPiece::nBlack, currSquare);
-                    pieceMap_[currSquare] = CPiece(enumColour::black, currSquare, fenCharLower);
+                    pieceMap_[currSquare] = CPiece(enumColour::black,
+                                                   currSquare,
+                                                   fenCharLower,
+                                                   &knight_movesets_,
+                                                   &king_movesets_);
                 }
 
                 ++currFile;

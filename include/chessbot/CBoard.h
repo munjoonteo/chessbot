@@ -1,3 +1,4 @@
+#include <array>
 #include <string>
 #include <unordered_map>
 
@@ -52,7 +53,7 @@ class CBoard {
 
         // Elements correspond to enum enumPiece
         // i.e. pieceBB_[0] is a bitboard representing all White pieces
-        U64 pieceBB_[8];
+        std::array<U64, 8> pieceBB_;
 
         // Map of squares to pieces (the piece currently on that square)
         std::unordered_map<enumSquare, CPiece> pieceMap_;
@@ -81,6 +82,6 @@ class CBoard {
 
         // Precomputed non-sliding piece movesets
         // Pawns can be calculated because dealing with different colours is hard
-        U64 knight_movesets_[64];
-        U64 king_movesets_[64];
+        Movesets knight_movesets_;
+        Movesets king_movesets_;
 };
