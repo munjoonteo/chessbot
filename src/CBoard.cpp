@@ -145,18 +145,8 @@ void CBoard::parseFENPieces(std::string fen) {
 
                 if (fenChar >= 'A' and fenChar <= 'Z') {
                     CBoard::setSquare(enumPiece::nWhite, currSquare);
-                    pieceMap_[currSquare] = CPiece(enumColour::white,
-                                                   currSquare,
-                                                   fenCharLower,
-                                                   &knight_movesets_,
-                                                   &king_movesets_);
                 } else if (fenChar >= 'a' and fenChar <= 'z') {
                     CBoard::setSquare(enumPiece::nBlack, currSquare);
-                    pieceMap_[currSquare] = CPiece(enumColour::black,
-                                                   currSquare,
-                                                   fenCharLower,
-                                                   &knight_movesets_,
-                                                   &king_movesets_);
                 }
 
                 ++currFile;

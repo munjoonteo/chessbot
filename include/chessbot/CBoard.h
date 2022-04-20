@@ -4,7 +4,6 @@
 
 #include "enums.h"
 #include "types.h"
-#include "CPiece.h"
 
 class CBoard {
     public:
@@ -54,9 +53,6 @@ class CBoard {
         // Elements correspond to enum enumPiece
         // i.e. pieceBB_[0] is a bitboard representing all White pieces
         std::array<U64, 8> pieceBB_;
-
-        // Map of squares to pieces (the piece currently on that square)
-        std::unordered_map<enumSquare, CPiece> pieceMap_;
 
         // Current side to move (White or Black)
         enumColour sideToMove_;
