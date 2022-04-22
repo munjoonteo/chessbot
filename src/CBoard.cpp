@@ -203,10 +203,10 @@ bool CBoard::getSquare(enumPiece board, enumSquare square) const {
 }
 
 // Sets the given square on the given bitboard to 1, meaning it is occupied
-U64 CBoard::setSquare(U64 board, enumSquare square) const {
+void CBoard::setSquare(U64 *board, enumSquare square) const {
     if (square < 0 or square > 63) throw  std::invalid_argument("Invalid square");
 
-    return board | (1ULL << square);
+    *board |= (1ULL << square);
 }
 
 void CBoard::setSquare(enumPiece board, enumSquare square) {
@@ -300,7 +300,7 @@ void CBoard::generateNonSlidingMovesets(const int* deltaRank, const int* deltaFi
             if (currFile + deltaFile[j] < 0 or currFile + deltaFile[j] > 7) continue;
 
             int moveTarget = static_cast<enumSquare>((currRank + deltaRank[j]) * 8 + (currFile + deltaFile[j]));
-            bitboard = CBoard::setSquare(bitboard, static_cast<enumSquare>(moveTarget));
+            CBoard::setSquare(&bitboard, static_cast<enumSquare>(moveTarget));
         }
 
         (*moveset)[i] = bitboard;
