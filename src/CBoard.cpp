@@ -288,15 +288,19 @@ const Movesets *CBoard::getKingMovesets() const {
     return &kingMovesets_;
 }
 
-void CBoard::generateNonSlidingMovesets(const int* directions, Movesets *moveset) {
+void CBoard::generateNonSlidingMovesets(const int* deltaRank, const int* deltaFile, Movesets *moveset) {
     for (int i = 0; i < 64; ++i) {
         U64 bitboard = 0ULL;
+        std::pair<int, int> coords = Constants::SQUARE_STRING_TO_COORDS_MAP.at(static_cast<enumSquare>(i));
+        int currRank = coords.first;
+        int currFile = coords.second;
 
         for (int j = 0; j < 8; ++j) {
-            int square = i + directions[j];
-            if (square >= 0 and square < 64) {
-                bitboard = CBoard::setSquare(bitboard, static_cast<enumSquare>(square));
-            }
+            if (currRank + deltaRank[j] < 0 or currRank + deltaRank[j] > 7) continue;
+            if (currFile + deltaFile[j] < 0 or currFile + deltaFile[j] > 7) continue;
+
+            int moveTarget = static_cast<enumSquare>((currRank + deltaRank[j]) * 8 + (currFile + deltaFile[j]));
+            bitboard = CBoard::setSquare(bitboard, static_cast<enumSquare>(moveTarget));
         }
 
         (*moveset)[i] = bitboard;
@@ -305,14 +309,16 @@ void CBoard::generateNonSlidingMovesets(const int* directions, Movesets *moveset
 
 void CBoard::generateKnightMovesets() {
     // Starting from south-south-east move
-    const int directions[] = {15, 17, 10, -6, -15, -17, -10, 6};
-    CBoard::generateNonSlidingMovesets(directions, &knightMovesets_);
+    const int deltaRank[] = {-2, -1, 1, 2, 2, 1, -1, 2};
+    const int deltaFile[] = {1, 2, 2, 1, -1, -2, -2, -1};
+    CBoard::generateNonSlidingMovesets(deltaRank, deltaFile, &knightMovesets_);
 }
 
 void CBoard::generateKingMovesets() {
     // Starting from vertical move
-    const int directions[] = {-8, -7, 1, 9, 8, 7, -1, -9};
-    CBoard::generateNonSlidingMovesets(directions, &kingMovesets_);
+    const int deltaRank[] = {-1, -1, 0, 1, 1, 1, 0, -1};
+    const int deltaFile[] = {0, 1, 1, 1, 0, -1, -1, -1};
+    CBoard::generateNonSlidingMovesets(deltaRank, deltaFile, &kingMovesets_);
 }
 
 void CBoard::printBB(U64 board) {

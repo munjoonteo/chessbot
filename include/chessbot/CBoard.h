@@ -53,7 +53,7 @@ class CBoard {
         U64 wPawnsCanDoublePush();
         U64 bPawnsCanDoublePush();
 
-        void generateNonSlidingMovesets(const int *directions, Movesets *moveset);
+        void generateNonSlidingMovesets(const int *deltaRank, const int *deltaFile, Movesets *moveset);
         void generateKnightMovesets();
         void generateKingMovesets();
 
