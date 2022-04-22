@@ -21,13 +21,22 @@ class CBoard {
         U64 getPieceSet(enumPiece piece) const;
         U64 getPieceSet(enumPiece piece, enumPiece colour) const;
 
+        bool getSquare(U64 board, enumSquare square) const;
         bool getSquare(enumPiece board, enumSquare square) const;
+
+        U64 setSquare(U64 board, enumSquare square) const;
         void setSquare(enumPiece board, enumSquare square);
-        U64 setSquare(U64 board, int square);
+
         void unsetSquare(enumPiece board, enumSquare square);
 
+        // Getters
         int getCastleState() const;
 
+        const Movesets *getKnightMovesets() const;
+        const Movesets *getKingMovesets() const;
+
+        // Printing bitboards
+        void printBB(U64 board);
         void printBB(enumPiece board);
     private:
         void parseFENPieces(std::string fen);
@@ -43,6 +52,8 @@ class CBoard {
         U64 bPawnsCanPush();
         U64 wPawnsCanDoublePush();
         U64 bPawnsCanDoublePush();
+
+        void generateNonSlidingMovesets(const int *directions, Movesets *moveset);
         void generateKnightMovesets();
         void generateKingMovesets();
 
@@ -78,6 +89,6 @@ class CBoard {
 
         // Precomputed non-sliding piece movesets
         // Pawns can be calculated because dealing with different colours is hard
-        Movesets knight_movesets_;
-        Movesets king_movesets_;
+        Movesets knightMovesets_;
+        Movesets kingMovesets_;
 };

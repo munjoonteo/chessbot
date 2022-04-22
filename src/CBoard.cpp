@@ -192,23 +192,27 @@ U64 CBoard::getPieceSet(enumPiece piece, enumPiece colour) const {
 
 // Returns 1 if there is a piece on the given square on the given bitboard
 // Returns 0 otherwise
-bool CBoard::getSquare(enumPiece board, enumSquare square) const {
+bool CBoard::getSquare(U64 board, enumSquare square) const {
     if (square < 0 or square > 63) throw  std::invalid_argument("Invalid square");
 
-    return (pieceBB_[board] & (1ULL << square)) ? 1 : 0;
+    return (board & (1ULL << square)) ? 1 : 0;
+}
+
+bool CBoard::getSquare(enumPiece board, enumSquare square) const {
+    return CBoard::getSquare(pieceBB_[board], square);
 }
 
 // Sets the given square on the given bitboard to 1, meaning it is occupied
+U64 CBoard::setSquare(U64 board, enumSquare square) const {
+    if (square < 0 or square > 63) throw  std::invalid_argument("Invalid square");
+
+    return board | (1ULL << square);
+}
+
 void CBoard::setSquare(enumPiece board, enumSquare square) {
     if (square < 0 or square > 63) throw  std::invalid_argument("Invalid square");
 
     pieceBB_[board] |= (1ULL << square);
-}
-
-U64 CBoard::setSquare(U64 board, int square) {
-    if (square < 0 or square > 63) throw  std::invalid_argument("Invalid square");
-
-    return board | (1ULL << square);
 }
 
 // Sets the given square on the given bitboard to 0, meaning it is unoccupied
@@ -276,42 +280,42 @@ U64 CBoard::bPawnsCanDoublePush() {
     return CBoard::getPieceSet(enumPiece::nPawn, enumPiece::nBlack) & CBoard::shiftNorthOne(emptyRank6);
 }
 
+const Movesets *CBoard::getKnightMovesets() const {
+    return &knightMovesets_;
+}
+
+const Movesets *CBoard::getKingMovesets() const {
+    return &kingMovesets_;
+}
+
+void CBoard::generateNonSlidingMovesets(const int* directions, Movesets *moveset) {
+    for (int i = 0; i < 64; ++i) {
+        U64 bitboard = 0ULL;
+
+        for (int j = 0; j < 8; ++j) {
+            int square = i + directions[j];
+            if (square >= 0 and square < 64) {
+                bitboard = CBoard::setSquare(bitboard, static_cast<enumSquare>(square));
+            }
+        }
+
+        (*moveset)[i] = bitboard;
+    }
+}
+
 void CBoard::generateKnightMovesets() {
     // Starting from south-south-east move
     const int directions[] = {15, 17, 10, -6, -15, -17, -10, 6};
-
-    for (int i = 0; i < 64; ++i) {
-        U64 bitboard = 0ULL;
-
-        for (auto dir : directions) {
-            int targetSquare = i + dir;
-            if (targetSquare >= 0 and targetSquare < 64) bitboard = CBoard::setSquare(bitboard, targetSquare);
-        }
-
-        knight_movesets_[i] = bitboard;
-    }
+    CBoard::generateNonSlidingMovesets(directions, &knightMovesets_);
 }
 
 void CBoard::generateKingMovesets() {
-    // Starting from vertical upwards move
+    // Starting from vertical move
     const int directions[] = {-8, -7, 1, 9, 8, 7, -1, -9};
-
-    for (int i = 0; i < 64; ++i) {
-        U64 bitboard = 0ULL;
-
-        for (auto dir : directions) {
-            int targetSquare = i + dir;
-            if (targetSquare >= 0 and targetSquare < 64) bitboard = CBoard::setSquare(bitboard, targetSquare);
-        }
-
-        king_movesets_[i] = bitboard;
-    }
+    CBoard::generateNonSlidingMovesets(directions, &kingMovesets_);
 }
 
-
-void CBoard::printBB(enumPiece board) {
-    U64 target = pieceBB_[board];
-
+void CBoard::printBB(U64 board) {
     for (int rank = 0; rank < 8; ++rank) {
         // Print ranks on left
         std::cout << 8 - rank << "  ";
@@ -332,5 +336,9 @@ void CBoard::printBB(enumPiece board) {
     }
 
     // Print numerical representation of bitboard
-    std::cout << "\n" << "Bitboard: " << target << "\n";
+    std::cout << "\n" << "Bitboard: " << board << "\n";
+}
+
+void CBoard::printBB(enumPiece board) {
+    CBoard::printBB(pieceBB_[board]);
 }
