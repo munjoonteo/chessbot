@@ -21,7 +21,7 @@ class CBoard {
         U64 getPieceSet(enumPiece piece) const;
         U64 getPieceSet(enumPiece piece, enumPiece colour) const;
 
-        int getSquare(enumPiece board, enumSquare square) const;
+        bool getSquare(enumPiece board, enumSquare square) const;
         void setSquare(enumPiece board, enumSquare square);
         U64 setSquare(U64 board, int square);
         void unsetSquare(enumPiece board, enumSquare square);
