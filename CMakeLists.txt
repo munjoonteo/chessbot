@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED)
 set(CMAKE_CXX_FLAGS "-Wall -Wpedantic -std=c++2a -O3")
 set(CMAKE_OSX_DEPLOYMENT_TARGET 12)
 
+include(CTest)
 enable_testing()
 
 include_directories(include)
