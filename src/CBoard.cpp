@@ -309,7 +309,7 @@ void CBoard::generateNonSlidingMovesets(const int* deltaRank, const int* deltaFi
 
 void CBoard::generateKnightMovesets() {
     // Starting from south-south-east move
-    const int deltaRank[] = {-2, -1, 1, 2, 2, 1, -1, 2};
+    const int deltaRank[] = {-2, -1, 1, 2, 2, 1, -1, -2};
     const int deltaFile[] = {1, 2, 2, 1, -1, -2, -2, -1};
     CBoard::generateNonSlidingMovesets(deltaRank, deltaFile, &knightMovesets_);
 }
