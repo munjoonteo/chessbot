@@ -4,12 +4,55 @@
 
 #include "chessbot/CBoard.h"
 
+void setAndCheck(std::vector<enumSquare> *moves, CBoard* board, U64 *bb, enumSquare square, const Movesets* movesets) {
+    for (auto move: *moves) board->setSquare(bb, move);
+    board->printBB(movesets->at(square));
+    CHECK(movesets->at(square) == *bb);
+}
+
 TEST_CASE("Getting Knight movesets") {
     CBoard board = CBoard();
 
     const Movesets* knightMovesets = board.getKnightMovesets();
 
-    CHECK(1==1);
+    // Corners
+    U64 a8 = 0ULL;
+    std::vector<enumSquare> a8Moves = { c7, b6 };
+    setAndCheck(&a8Moves, &board, &a8, enumSquare::a8, knightMovesets);
+
+    U64 h8 = 0ULL;
+    std::vector<enumSquare> h8Moves = { f7, g6 };
+    setAndCheck(&h8Moves, &board, &h8, enumSquare::h8, knightMovesets);
+
+    U64 a1 = 0ULL;
+    std::vector<enumSquare> a1Moves = { c2, b3 };
+    setAndCheck(&a1Moves, &board, &a1, enumSquare::a1, knightMovesets);
+
+    U64 h1 = 0ULL;
+    std::vector<enumSquare> h1Moves = { f2, g3 };
+    setAndCheck(&h1Moves, &board, &h1, enumSquare::h1, knightMovesets);
+
+    // Left and right edges
+    U64 a7 = 0ULL;
+    std::vector<enumSquare> a7Moves = { c8, c6, b5 };
+    setAndCheck(&a7Moves, &board, &a7, enumSquare::a7, knightMovesets);
+
+    U64 a6 = 0ULL;
+    std::vector<enumSquare> a6Moves = { b8, c7, c5, b4 };
+    setAndCheck(&a6Moves, &board, &a6, enumSquare::a6, knightMovesets);
+
+    U64 h7 = 0ULL;
+    std::vector<enumSquare> h7Moves = { f8, f6, g5 };
+    setAndCheck(&h7Moves, &board, &h7, enumSquare::h7, knightMovesets);
+
+    U64 h6 = 0ULL;
+    std::vector<enumSquare> h6Moves = { g8, f7, f5, g4 };
+    setAndCheck(&h6Moves, &board, &h6, enumSquare::h6, knightMovesets);
+
+    // Center
+    U64 e5 = 0ULL;
+    std::vector<enumSquare> e5Moves = { d7, f7, g6, g4, f3, d3, c6, c4 };
+    setAndCheck(&e5Moves, &board, &e5, enumSquare::e5, knightMovesets);
 }
 
 TEST_CASE("Getting King movesets") {
@@ -17,88 +60,42 @@ TEST_CASE("Getting King movesets") {
 
     const Movesets* kingMovesets = board.getKingMovesets();
 
-    // Bottom left corner
-    U64 BLcornerBB = 0ULL;
-    board.setSquare(&BLcornerBB, enumSquare::a2);
-    board.setSquare(&BLcornerBB, enumSquare::b1);
-    board.setSquare(&BLcornerBB, enumSquare::b2);
-    board.printBB(kingMovesets->at(enumSquare::a1));
-    CHECK(kingMovesets->at(enumSquare::a1) == BLcornerBB);
+    // Corners
+    U64 a1 = 0ULL;
+    std::vector<enumSquare> a1Moves = { a2, b1, b2 };
+    setAndCheck(&a1Moves, &board, &a1, enumSquare::a1, kingMovesets);
 
-    // Bottom right corner
-    U64 BRcornerBB = 0ULL;
-    board.setSquare(&BRcornerBB, enumSquare::h2);
-    board.setSquare(&BRcornerBB, enumSquare::g1);
-    board.setSquare(&BRcornerBB, enumSquare::g2);
-    board.printBB(kingMovesets->at(enumSquare::h1));
-    CHECK(kingMovesets->at(enumSquare::h1) == BRcornerBB);
+    U64 h1 = 0ULL;
+    std::vector<enumSquare> h1Moves = { h2, g1, g2 };
+    setAndCheck(&h1Moves, &board, &h1, enumSquare::h1, kingMovesets);
 
-    // Top left corner
-    U64 TLcornerBB = 0ULL;
-    board.setSquare(&TLcornerBB, enumSquare::a7);
-    board.setSquare(&TLcornerBB, enumSquare::b8);
-    board.setSquare(&TLcornerBB, enumSquare::b7);
-    board.printBB(kingMovesets->at(enumSquare::a8));
-    CHECK(kingMovesets->at(enumSquare::a8) == TLcornerBB);
+    U64 a8 = 0ULL;
+    std::vector<enumSquare> a8Moves = { a7, b8, b7 };
+    setAndCheck(&a8Moves, &board, &a8, enumSquare::a8, kingMovesets);
 
-    // Top right corner
-    U64 TRcornerBB = 0ULL;
-    board.setSquare(&TRcornerBB, enumSquare::h7);
-    board.setSquare(&TRcornerBB, enumSquare::g8);
-    board.setSquare(&TRcornerBB, enumSquare::g7);
-    board.printBB(kingMovesets->at(enumSquare::h8));
-    CHECK(kingMovesets->at(enumSquare::h8) == TRcornerBB);
+    U64 h8 = 0ULL;
+    std::vector<enumSquare> h8Moves = { h7, g8, g7 };
+    setAndCheck(&h8Moves, &board, &h8, enumSquare::h8, kingMovesets);
 
-    // Top edge
-    U64 topEdgeBB = 0ULL;
-    board.setSquare(&topEdgeBB, enumSquare::c8);
-    board.setSquare(&topEdgeBB, enumSquare::c7);
-    board.setSquare(&topEdgeBB, enumSquare::d7);
-    board.setSquare(&topEdgeBB, enumSquare::e7);
-    board.setSquare(&topEdgeBB, enumSquare::e8);
-    board.printBB(kingMovesets->at(enumSquare::d8));
-    CHECK(kingMovesets->at(enumSquare::d8) == topEdgeBB);
+    // Edges
+    U64 d8 = 0ULL;
+    std::vector<enumSquare> d8Moves = { c8, c7, d7, e7, e8 };
+    setAndCheck(&d8Moves, &board, &d8, enumSquare::d8, kingMovesets);
 
-    // Right edge
-    U64 rightEdgeBB = 0ULL;
-    board.setSquare(&rightEdgeBB, enumSquare::h5);
-    board.setSquare(&rightEdgeBB, enumSquare::g5);
-    board.setSquare(&rightEdgeBB, enumSquare::g4);
-    board.setSquare(&rightEdgeBB, enumSquare::g3);
-    board.setSquare(&rightEdgeBB, enumSquare::h3);
-    board.printBB(kingMovesets->at(enumSquare::h4));
-    CHECK(kingMovesets->at(enumSquare::h4) == rightEdgeBB);
+    U64 h4 = 0ULL;
+    std::vector<enumSquare> h4Moves = { h5, g5, g4, g3, h3 };
+    setAndCheck(&h4Moves, &board, &h4, enumSquare::h4, kingMovesets);
 
-    // Bottom edge
-    U64 bottomEdgeBB = 0ULL;
-    board.setSquare(&bottomEdgeBB, enumSquare::c1);
-    board.setSquare(&bottomEdgeBB, enumSquare::c2);
-    board.setSquare(&bottomEdgeBB, enumSquare::d2);
-    board.setSquare(&bottomEdgeBB, enumSquare::e2);
-    board.setSquare(&bottomEdgeBB, enumSquare::e1);
-    board.printBB(kingMovesets->at(enumSquare::d1));
-    CHECK(kingMovesets->at(enumSquare::d1) == bottomEdgeBB);
+    U64 d1 = 0ULL;
+    std::vector<enumSquare> d1Moves = { c1, c2, d2, e2, e1 };
+    setAndCheck(&d1Moves, &board, &d1, enumSquare::d1, kingMovesets);
 
-    // Left edge
-    U64 leftEdgeBB = 0ULL;
-    board.setSquare(&leftEdgeBB, enumSquare::a5);
-    board.setSquare(&leftEdgeBB, enumSquare::b5);
-    board.setSquare(&leftEdgeBB, enumSquare::b4);
-    board.setSquare(&leftEdgeBB, enumSquare::b3);
-    board.setSquare(&leftEdgeBB, enumSquare::a3);
-    board.printBB(kingMovesets->at(enumSquare::a4));
-    CHECK(kingMovesets->at(enumSquare::a4) == leftEdgeBB);
+    U64 a4 = 0ULL;
+    std::vector<enumSquare> a4Moves = { a5, b5, b4, b3, a3 };
+    setAndCheck(&a4Moves, &board, &a4, enumSquare::a4, kingMovesets);
 
     // Center
-    U64 centerBB = 0ULL;
-    board.setSquare(&centerBB, enumSquare::d5);
-    board.setSquare(&centerBB, enumSquare::e5);
-    board.setSquare(&centerBB, enumSquare::e4);
-    board.setSquare(&centerBB, enumSquare::e3);
-    board.setSquare(&centerBB, enumSquare::d3);
-    board.setSquare(&centerBB, enumSquare::c3);
-    board.setSquare(&centerBB, enumSquare::c4);
-    board.setSquare(&centerBB, enumSquare::c5);
-    board.printBB(kingMovesets->at(enumSquare::d4));
-    CHECK(kingMovesets->at(enumSquare::d4) == centerBB);
+    U64 d4 = 0ULL;
+    std::vector<enumSquare> d4Moves = { d5, e5, e4, e3, d3, c3, c4, c5 };
+    setAndCheck(&d4Moves, &board, &d4, enumSquare::d4, kingMovesets);
 }
