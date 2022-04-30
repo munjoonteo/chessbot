@@ -37,6 +37,9 @@ class CBoard {
         const U64 getKnightMoveset(enumSquare square, U64 friendlyPieces);
         const U64 getKingMoveset(enumSquare square, U64 friendlyPieces);
 
+        const U64 getBishopMoveset(enumSquare square, U64 blockers, U64 friendlyPieces);
+        const U64 getRookMoveset(enumSquare square, U64 blockers, U64 friendlyPieces);
+
         // Printing bitboards
         void printBB(U64 board);
         void printBB(enumPiece board);
@@ -113,6 +116,6 @@ class CBoard {
 
         // Bitboards representing the attack set of a bishop/rook given a particular square and
         // an index derived from hashing the current blocking pieces via the magic numbers in magics_64.h
-        std::unordered_map<enumSquare, std::unordered_map<enumSquare, U64>> bishopMovesets_;
-        std::unordered_map<enumSquare, std::unordered_map<enumSquare, U64>> rookMovesets_;
+        std::array<std::array<U64, 64>, 64> bishopMovesets_;
+        std::array<std::array<U64, 64>, 64> rookMovesets_;
 };
