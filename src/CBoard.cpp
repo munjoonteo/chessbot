@@ -3,6 +3,7 @@
 
 #include "chessbot/CBoard.h"
 #include "chessbot/constants.h"
+#include "chessbot/magics_64.h"
 
 CBoard::CBoard()
     try : CBoard::CBoard("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1") {
@@ -299,6 +300,22 @@ const U64 CBoard::getKnightMoveset(enumSquare square, U64 friendlyPieces) {
 
 const U64 CBoard::getKingMoveset(enumSquare square, U64 friendlyPieces) {
     return kingMovesets_[square] & ~friendlyPieces;
+}
+
+const U64 CBoard::getBishopMoveset(enumSquare square, U64 blockers, U64 friendlyPieces) {
+    blockers &= bishopBlockerMask_[square];
+
+    U64 key = (blockers * bishopMagics[square]) >> (64 - bishopBits[square]);
+
+    return bishopMovesets_[square][key];
+}
+
+const U64 CBoard::getRookMoveset(enumSquare square, U64 blockers, U64 friendlyPieces) {
+    blockers &= rookBlockerMask_[square];
+
+    U64 key = (blockers * rookMagics[square]) >> (64 - rookBits[square]);
+
+    return rookMovesets_[square][key];
 }
 
 
