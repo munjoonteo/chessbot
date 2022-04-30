@@ -34,6 +34,8 @@ class CBoard {
 
         const Movesets *getKnightMovesets() const;
         const Movesets *getKingMovesets() const;
+        const U64 getKnightMoveset(enumSquare square, U64 friendlyPieces);
+        const U64 getKingMoveset(enumSquare square, U64 friendlyPieces);
 
         // Printing bitboards
         void printBB(U64 board);

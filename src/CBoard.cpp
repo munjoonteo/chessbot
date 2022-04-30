@@ -293,6 +293,15 @@ const Movesets *CBoard::getKingMovesets() const {
     return &kingMovesets_;
 }
 
+const U64 CBoard::getKnightMoveset(enumSquare square, U64 friendlyPieces) {
+    return knightMovesets_[square] & ~friendlyPieces;
+}
+
+const U64 CBoard::getKingMoveset(enumSquare square, U64 friendlyPieces) {
+    return kingMovesets_[square] & ~friendlyPieces;
+}
+
+
 void CBoard::generateNonSlidingMovesets(const int* deltaRank, const int* deltaFile, Movesets *moveset) {
     for (int i = 0; i < 64; ++i) {
         U64 bitboard = 0ULL;
