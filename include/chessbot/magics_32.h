@@ -136,6 +136,7 @@ const U64 bishopMagics[64] = {
 
 // Number of bits required to store the key for each move
 // Namely the number of possible squares the piece on that square can move to (excluding edge squares)
+// Which is equivalent to the number of blockers that can be present
 const int rookBits[64] = {
   12, 11, 11, 11, 11, 11, 11, 12,
   11, 10, 10, 10, 10, 10, 10, 11,
