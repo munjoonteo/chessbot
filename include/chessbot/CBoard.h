@@ -58,6 +58,11 @@ class CBoard {
         void generateKnightMovesets();
         void generateKingMovesets();
 
+        void generateBishopBlockerMasks();
+        void generateRookBlockerMasks();
+        void generateBishopMovesets();
+        void generateRookMovesets();
+
         // 1 means that square is in the corresponding rank
         const U64 rank4 = 0x00000000FF000000ULL;
         const U64 rank5 = 0x000000FF00000000ULL;
@@ -92,4 +97,20 @@ class CBoard {
         // Pawns can be calculated because dealing with different colours is hard
         Movesets knightMovesets_;
         Movesets kingMovesets_;
+
+        // Precomputed sliding piece moveset generators
+        // https://stackoverflow.com/questions/16925204/sliding-move-generation-using-magic-bitboard
+
+        // Bitboards representing all possible squares which have pieces
+        // which can block the movement of a bishop/rook on a particular square
+
+        // Note: The edges do not have to be included because the piece is able to
+        // move to an edge square regardless of whether there is a piece there or not
+        Movesets bishopBlockerMask_;
+        Movesets rookBlockerMask_;
+
+        // Bitboards representing the attack set of a bishop/rook given a particular square and
+        // an index derived from hashing the current blocking pieces via the magic numbers in magics_64.h
+        std::unordered_map<enumSquare, std::unordered_map<int, U64>> bishopMovesets_;
+        std::unordered_map<enumSquare, std::unordered_map<int, U64>> rookMovesets_;
 };
