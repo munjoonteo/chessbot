@@ -113,6 +113,6 @@ class CBoard {
 
         // Bitboards representing the attack set of a bishop/rook given a particular square and
         // an index derived from hashing the current blocking pieces via the magic numbers in magics_64.h
-        std::unordered_map<enumSquare, std::unordered_map<int, U64>> bishopMovesets_;
-        std::unordered_map<enumSquare, std::unordered_map<int, U64>> rookMovesets_;
+        std::unordered_map<enumSquare, std::unordered_map<enumSquare, U64>> bishopMovesets_;
+        std::unordered_map<enumSquare, std::unordered_map<enumSquare, U64>> rookMovesets_;
 };
