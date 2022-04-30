@@ -39,6 +39,7 @@ class CBoard {
         void printBB(U64 board);
         void printBB(enumPiece board);
     private:
+        void parseFen(std::string fen);
         void parseFENPieces(std::string fen);
 
         U64 shiftNorthOne(U64 bitboard);

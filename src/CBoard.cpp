@@ -15,6 +15,10 @@ CBoard::CBoard(std::string fen) {
     CBoard::generateKingMovesets();
     CBoard::generateKnightMovesets();
 
+    CBoard::parseFen(fen);
+}
+
+void CBoard::parseFen(std::string fen) {
     // FEN Notation explained:
     // Fields are separated by spaces
 
@@ -117,6 +121,7 @@ CBoard::CBoard(std::string fen) {
 
         ++currField;
     }
+
 }
 
 void CBoard::parseFENPieces(std::string fen) {
