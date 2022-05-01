@@ -37,8 +37,11 @@ class CBoard {
         const U64 getKnightMoveset(enumSquare square, U64 friendlyPieces);
         const U64 getKingMoveset(enumSquare square, U64 friendlyPieces);
 
+        const Movesets *getBishopBlockerMasks() const;
+        const Movesets *getRookBlockerMasks() const;
         const U64 getBishopMoveset(enumSquare square, U64 blockers, U64 friendlyPieces);
         const U64 getRookMoveset(enumSquare square, U64 blockers, U64 friendlyPieces);
+        const U64 getQueenMoveset(enumSquare square, U64 blockers, U64 friendlyPieces);
 
         // Printing bitboards
         void printBB(U64 board);
@@ -46,6 +49,8 @@ class CBoard {
     private:
         void parseFen(std::string fen);
         void parseFENPieces(std::string fen);
+
+        enumSquare getSquareFromCoords(int rank, int file);
 
         U64 shiftNorthOne(U64 bitboard);
         U64 shiftSouthOne(U64 bitboard);
@@ -63,8 +68,12 @@ class CBoard {
         void generateKnightMovesets();
         void generateKingMovesets();
 
-        void generateBishopBlockerMasks();
-        void generateRookBlockerMasks();
+        // Masks generated using the classical rays technique
+        void generateBlockerMasks(enumPiece piece);
+        bool isLegalSquare(int rank, int file);
+        bool isEdge(int rank, int file);
+        bool isCorner(int rank, int file);
+
         void generateBishopMovesets();
         void generateRookMovesets();
 
@@ -111,8 +120,8 @@ class CBoard {
 
         // Note: The edges do not have to be included because the piece is able to
         // move to an edge square regardless of whether there is a piece there or not
-        Movesets bishopBlockerMask_;
-        Movesets rookBlockerMask_;
+        Movesets bishopBlockerMasks_;
+        Movesets rookBlockerMasks_;
 
         // Bitboards representing the attack set of a bishop/rook given a particular square and
         // an index derived from hashing the current blocking pieces via the magic numbers in magics_64.h

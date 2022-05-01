@@ -1,5 +1,6 @@
 #include <iostream>
 #include <sstream>
+#include <vector>
 
 #include "chessbot/CBoard.h"
 #include "chessbot/constants.h"
@@ -15,6 +16,9 @@ CBoard::CBoard(std::string fen) {
     // Precompute non-sliding piece movesets
     CBoard::generateKingMovesets();
     CBoard::generateKnightMovesets();
+
+    CBoard::generateBlockerMasks(enumPiece::nBishop);
+    CBoard::generateBlockerMasks(enumPiece::nRook);
 
     CBoard::parseFen(fen);
 }
@@ -138,7 +142,7 @@ void CBoard::parseFENPieces(std::string fen) {
             if (std::isdigit(fenChar)) {
                 currFile += fenChar - '0';
             } else if (std::isalpha(fenChar)) {
-                auto currSquare = static_cast<enumSquare>(currRank * 8 + currFile);
+                auto currSquare = getSquareFromCoords(currRank, currFile);
                 char fenCharLower = tolower(fenChar);
 
                 try {
@@ -167,6 +171,10 @@ void CBoard::parseFENPieces(std::string fen) {
     }
 
     if (currRank != 8) throw std::invalid_argument("Invalid FEN string");
+}
+
+enumSquare CBoard::getSquareFromCoords(int rank, int file) {
+    return static_cast<enumSquare>(rank * 8 + file);
 }
 
 void CBoard::changeTurn() {
@@ -302,8 +310,16 @@ const U64 CBoard::getKingMoveset(enumSquare square, U64 friendlyPieces) {
     return kingMovesets_[square] & ~friendlyPieces;
 }
 
+const Movesets *CBoard::getBishopBlockerMasks() const {
+    return &bishopBlockerMasks_;
+}
+
+const Movesets *CBoard::getRookBlockerMasks() const {
+    return &rookBlockerMasks_;
+}
+
 const U64 CBoard::getBishopMoveset(enumSquare square, U64 blockers, U64 friendlyPieces) {
-    blockers &= bishopBlockerMask_[square];
+    blockers &= bishopBlockerMasks_[square];
 
     U64 key = (blockers * bishopMagics[square]) >> (64 - bishopBits[square]);
 
@@ -311,13 +327,17 @@ const U64 CBoard::getBishopMoveset(enumSquare square, U64 blockers, U64 friendly
 }
 
 const U64 CBoard::getRookMoveset(enumSquare square, U64 blockers, U64 friendlyPieces) {
-    blockers &= rookBlockerMask_[square];
+    blockers &= rookBlockerMasks_[square];
 
     U64 key = (blockers * rookMagics[square]) >> (64 - rookBits[square]);
 
     return rookMovesets_[square][key];
 }
 
+const U64 CBoard::getQueenMoveset(enumSquare square, U64 blockers, U64 friendlyPieces) {
+    return CBoard::getBishopMoveset(square, blockers, friendlyPieces) &
+           CBoard::getRookMoveset(square, blockers, friendlyPieces);
+}
 
 void CBoard::generateNonSlidingMovesets(const int* deltaRank, const int* deltaFile, Movesets *moveset) {
     for (int i = 0; i < 64; ++i) {
@@ -327,11 +347,12 @@ void CBoard::generateNonSlidingMovesets(const int* deltaRank, const int* deltaFi
         int currFile = coords.second;
 
         for (int j = 0; j < 8; ++j) {
-            if (currRank + deltaRank[j] < 0 or currRank + deltaRank[j] > 7) continue;
-            if (currFile + deltaFile[j] < 0 or currFile + deltaFile[j] > 7) continue;
+            int newRank = currRank + deltaRank[j];
+            int newFile = currFile + deltaFile[j];
 
-            int moveTarget = static_cast<enumSquare>((currRank + deltaRank[j]) * 8 + (currFile + deltaFile[j]));
-            CBoard::setSquare(&bitboard, static_cast<enumSquare>(moveTarget));
+            if (!CBoard::isLegalSquare(newRank, newFile)) continue;
+
+            CBoard::setSquare(&bitboard, CBoard::getSquareFromCoords(newRank, newFile));
         }
 
         (*moveset)[i] = bitboard;
@@ -352,15 +373,101 @@ void CBoard::generateKingMovesets() {
     CBoard::generateNonSlidingMovesets(deltaRank, deltaFile, &kingMovesets_);
 }
 
+void CBoard::generateBlockerMasks(enumPiece piece) {
+    std::vector<std::pair<int, int>> possibleRays;
+    Movesets *blockerMasks;
+
+    if (piece == enumPiece::nBishop) {
+        possibleRays = {{{1, 1}, {1, -1}, {-1, -1}, {-1, 1}}};
+        blockerMasks = &bishopBlockerMasks_;
+    } else if (piece == enumPiece::nRook) {
+        possibleRays = {{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}};
+        blockerMasks = &rookBlockerMasks_;
+    } else {
+        throw std::invalid_argument("Invalid piece");
+    }
+
+    for (auto curr : Constants::SQUARE_STRING_TO_COORDS_MAP) {
+        U64 bb = 0ULL;
+
+        enumSquare currSquare = curr.first;
+        int currRank = curr.second.first;
+        int currFile = curr.second.second;
+
+        for (auto ray: possibleRays) {
+            int blockerRank = currRank + ray.first;
+            int blockerFile = currFile + ray.second;
+
+            while (CBoard::isLegalSquare(blockerRank, blockerFile)) {
+                if (piece == enumPiece::nBishop) {
+                    if (CBoard::isEdge(blockerRank, blockerFile)) break;
+                } else if (piece == enumPiece::nRook) {
+                    // Because rooks move vertically along files and horizontally along ranks, the bishop check alone
+                    // won't work as it could potentially leave entire ranks/files untouched.
+                    // If the piece is on the first/last rank/file, we still need to expand along that
+                    // rank until the corners, as shown in the bitboard below for a rook on D8
+                    // Special care should be taken for the corners
+
+                    // 0 1 1 X 1 1 1 0      X 1 1 1 1 1 1 0
+                    // 0 0 0 1 0 0 0 0      1 0 0 0 0 0 0 0
+                    // 0 0 0 1 0 0 0 0      1 0 0 0 0 0 0 0
+                    // 0 0 0 1 0 0 0 0      1 0 0 0 0 0 0 0
+                    // 0 0 0 1 0 0 0 0      1 0 0 0 0 0 0 0
+                    // 0 0 0 1 0 0 0 0      1 0 0 0 0 0 0 0
+                    // 0 0 0 1 0 0 0 0      1 0 0 0 0 0 0 0
+                    // 0 0 0 0 0 0 0 0      0 0 0 0 0 0 0 0
+
+                    if (CBoard::isCorner(currRank, currFile)) {
+                        if (CBoard::isCorner(blockerRank, blockerFile)) break;
+                    } else if (CBoard::isEdge(currRank, currFile)) {
+                        if (CBoard::isCorner(blockerRank, blockerFile)) break;
+
+                        // The following will break the loop when the blocker is on the opposite rank or file
+                        if ((currRank == 0 or currRank == 7) and (blockerRank == 7 - currRank)) break;
+                        if ((currFile == 0 or currFile == 7) and (blockerFile == 7 - currFile)) break;
+                    } else {
+                        if (CBoard::isEdge(blockerRank, blockerFile)) break;
+                    }
+                }
+
+                enumSquare currBlocker = getSquareFromCoords(blockerRank, blockerFile);
+                CBoard::setSquare(&bb, currBlocker);
+
+                blockerRank += ray.first;
+                blockerFile += ray.second;
+            }
+        }
+
+        (*blockerMasks)[currSquare] = bb;
+
+        CBoard::printBB(bb);
+    }
+}
+
+bool CBoard::isLegalSquare(int rank, int file) {
+    return (rank >= 0 and rank < 8 and file >= 0 and file < 8);
+}
+
+bool CBoard::isEdge(int rank, int file) {
+    return (rank == 0 or rank == 7 or file == 0 or file == 7);
+}
+
+bool CBoard::isCorner(int rank, int file) {
+    return (
+        (rank == 0 and file == 0) or
+        (rank == 0 and file == 7) or
+        (rank == 7 and file == 0) or
+        (rank == 7 and file == 7)
+    );
+}
+
 void CBoard::printBB(U64 board) {
     for (int rank = 0; rank < 8; ++rank) {
         // Print ranks on left
         std::cout << 8 - rank << "  ";
 
         for (int file = 0; file < 8; ++file) {
-            // Get the index of the bit corresponding to the current rank and file
-            auto currSquare = static_cast<enumSquare>(rank * 8 + file);
-            std::cout << " " << getSquare(board, currSquare);
+            std::cout << " " << getSquare(board, CBoard::getSquareFromCoords(rank, file));
         }
 
         std::cout << "\n";
