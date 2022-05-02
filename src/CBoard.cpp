@@ -250,18 +250,14 @@ U64 CBoard::shiftSouthOne(U64 bitboard) {
 
 U64 CBoard::wPawnPushTargets() {
     return
-        CBoard::shiftNorthOne(
-                CBoard::getPieceSet(enumPiece::nPawn,
-                enumPiece::nWhite)
-        ) & CBoard::getEmptySquares();
+        CBoard::shiftNorthOne(CBoard::getPieceSet(enumPiece::nPawn, enumPiece::nWhite))
+        & CBoard::getEmptySquares();
 }
 
 U64 CBoard::bPawnPushTargets() {
     return
-        CBoard::shiftSouthOne(
-                CBoard::getPieceSet(enumPiece::nPawn,
-                enumPiece::nBlack)
-        ) & CBoard::getEmptySquares();
+        CBoard::shiftSouthOne(CBoard::getPieceSet(enumPiece::nPawn, enumPiece::nBlack))
+        & CBoard::getEmptySquares();
 }
 
 U64 CBoard::wPawnDoublePushTargets() {
@@ -361,15 +357,15 @@ void CBoard::generateNonSlidingMovesets(const int* deltaRank, const int* deltaFi
 
 void CBoard::generateKnightMovesets() {
     // Starting from south-south-east move
-    const int deltaRank[] = {-2, -1, 1, 2, 2, 1, -1, -2};
-    const int deltaFile[] = {1, 2, 2, 1, -1, -2, -2, -1};
+    const int deltaRank[] = { -2, -1, 1, 2, 2, 1, -1, -2 };
+    const int deltaFile[] = { 1, 2, 2, 1, -1, -2, -2, -1 };
     CBoard::generateNonSlidingMovesets(deltaRank, deltaFile, &knightMovesets_);
 }
 
 void CBoard::generateKingMovesets() {
     // Starting from vertical move
-    const int deltaRank[] = {-1, -1, 0, 1, 1, 1, 0, -1};
-    const int deltaFile[] = {0, 1, 1, 1, 0, -1, -1, -1};
+    const int deltaRank[] = { -1, -1, 0, 1, 1, 1, 0, -1 };
+    const int deltaFile[] = { 0, 1, 1, 1, 0, -1, -1, -1 };
     CBoard::generateNonSlidingMovesets(deltaRank, deltaFile, &kingMovesets_);
 }
 
@@ -378,10 +374,10 @@ void CBoard::generateBlockerMasks(enumPiece piece) {
     Movesets *blockerMasks;
 
     if (piece == enumPiece::nBishop) {
-        possibleRays = {{{1, 1}, {1, -1}, {-1, -1}, {-1, 1}}};
+        possibleRays = { { { 1, 1 }, { 1, -1 }, { -1, -1 }, { -1, 1 } } };
         blockerMasks = &bishopBlockerMasks_;
     } else if (piece == enumPiece::nRook) {
-        possibleRays = {{{1, 0}, {-1, 0}, {0, 1}, {0, -1}}};
+        possibleRays = { { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } } };
         blockerMasks = &rookBlockerMasks_;
     } else {
         throw std::invalid_argument("Invalid piece");
