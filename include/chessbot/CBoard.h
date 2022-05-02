@@ -1,6 +1,7 @@
 #include <array>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 #include "enums.h"
 #include "types.h"
@@ -74,6 +75,7 @@ class CBoard {
         bool isEdge(int rank, int file);
         bool isCorner(int rank, int file);
 
+        void generateSlidingMovesets();
         void generateBishopMovesets();
         void generateRookMovesets();
 
@@ -122,6 +124,10 @@ class CBoard {
         // move to an edge square regardless of whether there is a piece there or not
         Movesets bishopBlockerMasks_;
         Movesets rookBlockerMasks_;
+
+        // Blockers in vector of squares form, to simplify generation of all possble blockers.
+        std::array<std::vector<enumSquare>, 64> bishopBlockerVectors_;
+        std::array<std::vector<enumSquare>, 64> rookBlockerVectors_;
 
         // Bitboards representing the attack set of a bishop/rook given a particular square and
         // an index derived from hashing the current blocking pieces via the magic numbers in magics_64.h

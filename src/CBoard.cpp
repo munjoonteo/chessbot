@@ -1,6 +1,5 @@
 #include <iostream>
 #include <sstream>
-#include <vector>
 
 #include "chessbot/CBoard.h"
 #include "chessbot/constants.h"
@@ -372,19 +371,23 @@ void CBoard::generateKingMovesets() {
 void CBoard::generateBlockerMasks(enumPiece piece) {
     std::vector<std::pair<int, int>> possibleRays;
     Movesets *blockerMasks;
+    std::array<std::vector<enumSquare>, 64> *blockerVectors;
 
     if (piece == enumPiece::nBishop) {
         possibleRays = { { { 1, 1 }, { 1, -1 }, { -1, -1 }, { -1, 1 } } };
         blockerMasks = &bishopBlockerMasks_;
+        blockerVectors = &bishopBlockerVectors_;
     } else if (piece == enumPiece::nRook) {
         possibleRays = { { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } } };
         blockerMasks = &rookBlockerMasks_;
+        blockerVectors = &rookBlockerVectors_;
     } else {
         throw std::invalid_argument("Invalid piece");
     }
 
     for (auto curr : Constants::SQUARE_STRING_TO_COORDS_MAP) {
         U64 bb = 0ULL;
+        std::vector<enumSquare> blockers = {};
 
         enumSquare currSquare = curr.first;
         int currRank = curr.second.first;
@@ -427,6 +430,7 @@ void CBoard::generateBlockerMasks(enumPiece piece) {
                 }
 
                 enumSquare currBlocker = getSquareFromCoords(blockerRank, blockerFile);
+                blockers.emplace_back(currBlocker);
                 CBoard::setSquare(&bb, currBlocker);
 
                 blockerRank += ray.first;
@@ -435,8 +439,7 @@ void CBoard::generateBlockerMasks(enumPiece piece) {
         }
 
         (*blockerMasks)[currSquare] = bb;
-
-        CBoard::printBB(bb);
+        (*blockerVectors)[currSquare] = blockers;
     }
 }
 
