@@ -335,7 +335,7 @@ const U64 CBoard::getRookMoveset(enumSquare square, U64 blockers, U64 friendlyPi
 }
 
 const U64 CBoard::getQueenMoveset(enumSquare square, U64 blockers, U64 friendlyPieces) {
-    return CBoard::getBishopMoveset(square, blockers, friendlyPieces) &
+    return CBoard::getBishopMoveset(square, blockers, friendlyPieces) |
            CBoard::getRookMoveset(square, blockers, friendlyPieces);
 }
 
