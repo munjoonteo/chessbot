@@ -404,10 +404,10 @@ void CBoard::generateBlockerMasks(enumPiece piece) {
                 } else if (piece == enumPiece::nRook) {
                     // Because rooks move vertically along files and horizontally along ranks, the bishop check alone
                     // won't work as it could potentially leave entire ranks/files untouched.
-                    // If the piece is on the first/last rank/file, we still need to expand along that
-                    // rank until the corners, as shown in the bitboard below for a rook on D8
-                    // Special care should be taken for the corners
+                    // If the piece is on the first/last rank/file, we still need to expand until the corners
 
+                    // Examples
+                    // Last rank            a8 corner
                     // 0 1 1 X 1 1 1 0      X 1 1 1 1 1 1 0
                     // 0 0 0 1 0 0 0 0      1 0 0 0 0 0 0 0
                     // 0 0 0 1 0 0 0 0      1 0 0 0 0 0 0 0
