@@ -239,6 +239,77 @@ int CBoard::getCastleState() const {
     return castling_;
 }
 
+const Movesets *CBoard::getKnightMovesets() const {
+    return &knightMovesets_;
+}
+
+const Movesets *CBoard::getKingMovesets() const {
+    return &kingMovesets_;
+}
+
+const U64 CBoard::getKnightMoveset(enumSquare square, U64 friendlyPieces) {
+    return knightMovesets_[square] & ~friendlyPieces;
+}
+
+const U64 CBoard::getKingMoveset(enumSquare square, U64 friendlyPieces) {
+    return kingMovesets_[square] & ~friendlyPieces;
+}
+
+const Movesets *CBoard::getBishopBlockerMasks() const {
+    return &bishopBlockerMasks_;
+}
+
+const Movesets *CBoard::getRookBlockerMasks() const {
+    return &rookBlockerMasks_;
+}
+
+const U64 CBoard::getBishopMoveset(enumSquare square, U64 blockers, U64 friendlyPieces) {
+    blockers &= bishopBlockerMasks_[square];
+
+    U64 key = (blockers * bishopMagics[square]) >> (64 - bishopBits[square]);
+
+    return bishopMovesets_[square][key];
+}
+
+const U64 CBoard::getRookMoveset(enumSquare square, U64 blockers, U64 friendlyPieces) {
+    blockers &= rookBlockerMasks_[square];
+
+    U64 key = (blockers * rookMagics[square]) >> (64 - rookBits[square]);
+
+    return rookMovesets_[square][key];
+}
+
+const U64 CBoard::getQueenMoveset(enumSquare square, U64 blockers, U64 friendlyPieces) {
+    return CBoard::getBishopMoveset(square, blockers, friendlyPieces) |
+           CBoard::getRookMoveset(square, blockers, friendlyPieces);
+}
+
+void CBoard::printBB(U64 board) {
+    for (int rank = 0; rank < 8; ++rank) {
+        // Print ranks on left
+        std::cout << 8 - rank << "  ";
+
+        for (int file = 0; file < 8; ++file) {
+            std::cout << " " << getSquare(board, CBoard::getSquareFromCoords(rank, file));
+        }
+
+        std::cout << "\n";
+    }
+
+    // Print files on bottom
+    std::cout << "\n    ";
+    for (int file = 0; file < 8; ++file) {
+        std::cout << static_cast<char>('a' + file) << " ";
+    }
+
+    // Print numerical representation of bitboard
+    std::cout << "\n" << "Bitboard: " << board << "\n";
+}
+
+void CBoard::printBB(enumPiece board) {
+    CBoard::printBB(pieceBB_[board]);
+}
+
 U64 CBoard::shiftNorthOne(U64 bitboard) {
     return bitboard << 8;
 }
@@ -287,51 +358,6 @@ U64 CBoard::bPawnsCanDoublePush() {
     U64 emptySquares = CBoard::getEmptySquares();
     U64 emptyRank6 = CBoard::shiftNorthOne(emptySquares & CBoard::rank5) & emptySquares;
     return CBoard::getPieceSet(enumPiece::nPawn, enumPiece::nBlack) & CBoard::shiftNorthOne(emptyRank6);
-}
-
-const Movesets *CBoard::getKnightMovesets() const {
-    return &knightMovesets_;
-}
-
-const Movesets *CBoard::getKingMovesets() const {
-    return &kingMovesets_;
-}
-
-const U64 CBoard::getKnightMoveset(enumSquare square, U64 friendlyPieces) {
-    return knightMovesets_[square] & ~friendlyPieces;
-}
-
-const U64 CBoard::getKingMoveset(enumSquare square, U64 friendlyPieces) {
-    return kingMovesets_[square] & ~friendlyPieces;
-}
-
-const Movesets *CBoard::getBishopBlockerMasks() const {
-    return &bishopBlockerMasks_;
-}
-
-const Movesets *CBoard::getRookBlockerMasks() const {
-    return &rookBlockerMasks_;
-}
-
-const U64 CBoard::getBishopMoveset(enumSquare square, U64 blockers, U64 friendlyPieces) {
-    blockers &= bishopBlockerMasks_[square];
-
-    U64 key = (blockers * bishopMagics[square]) >> (64 - bishopBits[square]);
-
-    return bishopMovesets_[square][key];
-}
-
-const U64 CBoard::getRookMoveset(enumSquare square, U64 blockers, U64 friendlyPieces) {
-    blockers &= rookBlockerMasks_[square];
-
-    U64 key = (blockers * rookMagics[square]) >> (64 - rookBits[square]);
-
-    return rookMovesets_[square][key];
-}
-
-const U64 CBoard::getQueenMoveset(enumSquare square, U64 blockers, U64 friendlyPieces) {
-    return CBoard::getBishopMoveset(square, blockers, friendlyPieces) |
-           CBoard::getRookMoveset(square, blockers, friendlyPieces);
 }
 
 void CBoard::generateNonSlidingMovesets(const int* deltaRank, const int* deltaFile, Movesets *moveset) {
@@ -458,30 +484,4 @@ bool CBoard::isCorner(int rank, int file) {
         (rank == 7 and file == 0) or
         (rank == 7 and file == 7)
     );
-}
-
-void CBoard::printBB(U64 board) {
-    for (int rank = 0; rank < 8; ++rank) {
-        // Print ranks on left
-        std::cout << 8 - rank << "  ";
-
-        for (int file = 0; file < 8; ++file) {
-            std::cout << " " << getSquare(board, CBoard::getSquareFromCoords(rank, file));
-        }
-
-        std::cout << "\n";
-    }
-
-    // Print files on bottom
-    std::cout << "\n    ";
-    for (int file = 0; file < 8; ++file) {
-        std::cout << static_cast<char>('a' + file) << " ";
-    }
-
-    // Print numerical representation of bitboard
-    std::cout << "\n" << "Bitboard: " << board << "\n";
-}
-
-void CBoard::printBB(enumPiece board) {
-    CBoard::printBB(pieceBB_[board]);
 }
