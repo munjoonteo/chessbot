@@ -19,6 +19,9 @@ CBoard::CBoard(std::string fen) {
     CBoard::generateBlockerMasks(enumPiece::nBishop);
     CBoard::generateBlockerMasks(enumPiece::nRook);
 
+    CBoard::generateSlidingMovesets(enumPiece::nBishop);
+    CBoard::generateSlidingMovesets(enumPiece::nRook);
+
     CBoard::parseFen(fen);
 }
 
@@ -376,7 +379,7 @@ void CBoard::generateNonSlidingMovesets(const int* deltaRank, const int* deltaFi
             CBoard::setSquare(&bitboard, CBoard::getSquareFromCoords(newRank, newFile));
         }
 
-        (*moveset)[i] = bitboard;
+        moveset->at(i) = bitboard;
     }
 }
 
@@ -397,7 +400,7 @@ void CBoard::generateKingMovesets() {
 void CBoard::generateBlockerMasks(enumPiece piece) {
     std::vector<std::pair<int, int>> possibleRays;
     Movesets *blockerMasks;
-    std::array<std::vector<enumSquare>, 64> *blockerVectors;
+    std::array<BlockerVector, 64> *blockerVectors;
 
     if (piece == enumPiece::nBishop) {
         possibleRays = { { { 1, 1 }, { 1, -1 }, { -1, -1 }, { -1, 1 } } };
@@ -413,7 +416,7 @@ void CBoard::generateBlockerMasks(enumPiece piece) {
 
     for (auto curr : Constants::SQUARE_STRING_TO_COORDS_MAP) {
         U64 bb = 0ULL;
-        std::vector<enumSquare> blockers = {};
+        BlockerVector blockers = {};
 
         enumSquare currSquare = curr.first;
         int currRank = curr.second.first;
@@ -464,8 +467,8 @@ void CBoard::generateBlockerMasks(enumPiece piece) {
             }
         }
 
-        (*blockerMasks)[currSquare] = bb;
-        (*blockerVectors)[currSquare] = blockers;
+        blockerMasks->at(currSquare) = bb;
+        blockerVectors->at(currSquare) = blockers;
     }
 }
 
@@ -479,9 +482,73 @@ bool CBoard::isEdge(int rank, int file) {
 
 bool CBoard::isCorner(int rank, int file) {
     return (
-        (rank == 0 and file == 0) or
-        (rank == 0 and file == 7) or
-        (rank == 7 and file == 0) or
-        (rank == 7 and file == 7)
+        (rank == 0 and file == 0)
+        or (rank == 0 and file == 7)
+        or (rank == 7 and file == 0)
+        or (rank == 7 and file == 7)
     );
+}
+
+void CBoard::generateSlidingMovesets(enumPiece piece) {
+    std::array<BlockerVector, 64> *blockerVectors;
+    std::array<std::array<U64, 64>, 64> *movesets;
+    const int *bits;
+
+    if (piece == enumPiece::nBishop) {
+        blockerVectors = &bishopBlockerVectors_;
+        movesets = &bishopMovesets_;
+        bits = bishopBits;
+    } else if (piece == enumPiece::nRook) {
+        blockerVectors = &rookBlockerVectors_;
+        movesets = &rookMovesets_;
+        bits = rookBits;
+    } else {
+        throw std::invalid_argument("Invalid piece");
+    }
+
+    // Generate all possible combinations of blockers for each square
+    for (int i = 0; i < 64; ++i) {
+        auto blockerVector = blockerVectors->at(i);
+        std::vector<BlockerVector> combinations = {};
+
+        // Generate all combinations of bits[i] possible blockers
+        // i.e. 1 blocker, 2 blockers up to bits[i]
+        for (int j = 1; j <= bits[i]; ++j) {
+            getCombination(&combinations, &blockerVector, j);
+
+            // Convert blockers back into a bitboard
+            // Generate key with the corresponding magic number
+            // Fill in appropriate slot in corresponding moveset
+            for (auto combination : combinations) {
+                U64 blockerBB = 0ULL;
+                for (auto blocker : combination) CBoard::setSquare(&blockerBB, blocker);
+
+                U64 key = (blockerBB * bishopMagics[i]) >> (64 - bishopBits[i]);
+                movesets->at(i)[key] = 0ULL;
+            }
+        }
+    }
+}
+
+void CBoard::getCombination(std::vector<BlockerVector> *combinations, BlockerVector *blockers, int nBlockers) {
+    BlockerVector currCombination(nBlockers);
+
+    CBoard::getCombinationRecurse(combinations, blockers, &currCombination, 0, blockers->size() - 1, 0, nBlockers);
+}
+
+void CBoard::getCombinationRecurse(
+    std::vector<BlockerVector> *combinations,
+    BlockerVector *blockers,
+    BlockerVector *currCombination,
+    int start, int end, int currCombIdx, int nBlockers
+) {
+    if (currCombIdx == nBlockers) {
+        combinations->emplace_back(*currCombination);
+        return;
+    }
+
+    for (int i = start; i <= end && end - i + 1 >= nBlockers - currCombIdx; ++i) {
+        currCombination->at(currCombIdx) = blockers->at(i);
+        CBoard::getCombinationRecurse(combinations, blockers, currCombination, i + 1, end, currCombIdx + 1, nBlockers);
+    }
 }

@@ -75,11 +75,16 @@ class CBoard {
         bool isEdge(int rank, int file);
         bool isCorner(int rank, int file);
 
-        void generateSlidingMovesets();
-        void generateBishopMovesets();
-        void generateRookMovesets();
+        void generateSlidingMovesets(enumPiece piece);
+        void getCombination(std::vector<BlockerVector> *combinations, BlockerVector *blockers, int nBlockers);
+        void getCombinationRecurse(
+            std::vector<BlockerVector> *combinations,
+            BlockerVector *blockers,
+            BlockerVector *currCombination,
+            int start, int end, int currCombIdx, int combSize
+        );
 
-        // 1 means that square is in the corresponding rank
+        // square & rankN == 1 means that square is in the corresponding rank
         const U64 rank4 = 0x00000000FF000000ULL;
         const U64 rank5 = 0x000000FF00000000ULL;
 
@@ -126,8 +131,8 @@ class CBoard {
         Movesets rookBlockerMasks_;
 
         // Blockers in vector of squares form, to simplify generation of all possble blockers.
-        std::array<std::vector<enumSquare>, 64> bishopBlockerVectors_;
-        std::array<std::vector<enumSquare>, 64> rookBlockerVectors_;
+        std::array<BlockerVector, 64> bishopBlockerVectors_;
+        std::array<BlockerVector, 64> rookBlockerVectors_;
 
         // Bitboards representing the attack set of a bishop/rook given a particular square and
         // an index derived from hashing the current blocking pieces via the magic numbers in magics_64.h
