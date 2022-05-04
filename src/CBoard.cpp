@@ -401,15 +401,18 @@ void CBoard::generateBlockerMasks(enumPiece piece) {
     std::vector<std::pair<int, int>> possibleRays;
     Movesets *blockerMasks;
     std::array<BlockerVector, 64> *blockerVectors;
+    Movesets *movesetsRaw;
 
     if (piece == enumPiece::nBishop) {
         possibleRays = { { { 1, 1 }, { 1, -1 }, { -1, -1 }, { -1, 1 } } };
         blockerMasks = &bishopBlockerMasks_;
         blockerVectors = &bishopBlockerVectors_;
+        movesetsRaw = &bishopMovesetsRaw_;
     } else if (piece == enumPiece::nRook) {
         possibleRays = { { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } } };
         blockerMasks = &rookBlockerMasks_;
         blockerVectors = &rookBlockerVectors_;
+        movesetsRaw = &rookMovesetsRaw_;
     } else {
         throw std::invalid_argument("Invalid piece");
     }
@@ -427,37 +430,6 @@ void CBoard::generateBlockerMasks(enumPiece piece) {
             int blockerFile = currFile + ray.second;
 
             while (CBoard::isLegalSquare(blockerRank, blockerFile)) {
-                if (piece == enumPiece::nBishop) {
-                    if (CBoard::isEdge(blockerRank, blockerFile)) break;
-                } else if (piece == enumPiece::nRook) {
-                    // Because rooks move vertically along files and horizontally along ranks, the bishop check alone
-                    // won't work as it could potentially leave entire ranks/files untouched.
-                    // If the piece is on the first/last rank/file, we still need to expand until the corners
-
-                    // Examples
-                    // Last rank            a8 corner
-                    // 0 1 1 X 1 1 1 0      X 1 1 1 1 1 1 0
-                    // 0 0 0 1 0 0 0 0      1 0 0 0 0 0 0 0
-                    // 0 0 0 1 0 0 0 0      1 0 0 0 0 0 0 0
-                    // 0 0 0 1 0 0 0 0      1 0 0 0 0 0 0 0
-                    // 0 0 0 1 0 0 0 0      1 0 0 0 0 0 0 0
-                    // 0 0 0 1 0 0 0 0      1 0 0 0 0 0 0 0
-                    // 0 0 0 1 0 0 0 0      1 0 0 0 0 0 0 0
-                    // 0 0 0 0 0 0 0 0      0 0 0 0 0 0 0 0
-
-                    if (CBoard::isCorner(currRank, currFile)) {
-                        if (CBoard::isCorner(blockerRank, blockerFile)) break;
-                    } else if (CBoard::isEdge(currRank, currFile)) {
-                        if (CBoard::isCorner(blockerRank, blockerFile)) break;
-
-                        // The following will break the loop when the blocker is on the opposite rank or file
-                        if ((currRank == 0 or currRank == 7) and (blockerRank == 7 - currRank)) break;
-                        if ((currFile == 0 or currFile == 7) and (blockerFile == 7 - currFile)) break;
-                    } else {
-                        if (CBoard::isEdge(blockerRank, blockerFile)) break;
-                    }
-                }
-
                 enumSquare currBlocker = getSquareFromCoords(blockerRank, blockerFile);
                 blockers.emplace_back(currBlocker);
                 CBoard::setSquare(&bb, currBlocker);
@@ -467,7 +439,8 @@ void CBoard::generateBlockerMasks(enumPiece piece) {
             }
         }
 
-        blockerMasks->at(currSquare) = bb;
+        movesetsRaw->at(currSquare) = bb;
+        blockerMasks->at(currSquare) = CBoard::clearEdges(bb);
         blockerVectors->at(currSquare) = blockers;
     }
 }
@@ -476,42 +449,49 @@ bool CBoard::isLegalSquare(int rank, int file) {
     return (rank >= 0 and rank < 8 and file >= 0 and file < 8);
 }
 
-bool CBoard::isEdge(int rank, int file) {
-    return (rank == 0 or rank == 7 or file == 0 or file == 7);
-}
+U64 CBoard::clearEdges(U64 bb) {
+    // Mask looks like this in binary
+    // 00000000
+    // 01111110
+    // 01111110
+    // 01111110
+    // 01111110
+    // 01111110
+    // 01111110
+    // 00000000
 
-bool CBoard::isCorner(int rank, int file) {
-    return (
-        (rank == 0 and file == 0)
-        or (rank == 0 and file == 7)
-        or (rank == 7 and file == 0)
-        or (rank == 7 and file == 7)
-    );
+    return bb & 35604928818740736ULL;
 }
 
 void CBoard::generateSlidingMovesets(enumPiece piece) {
     std::array<BlockerVector, 64> *blockerVectors;
     std::array<std::array<U64, 64>, 64> *movesets;
+    const U64 *magics;
     const int *bits;
+    Movesets *movesetsRaw;
 
     if (piece == enumPiece::nBishop) {
         blockerVectors = &bishopBlockerVectors_;
         movesets = &bishopMovesets_;
+        magics = bishopMagics;
         bits = bishopBits;
+        movesetsRaw = &bishopMovesetsRaw_;
     } else if (piece == enumPiece::nRook) {
         blockerVectors = &rookBlockerVectors_;
         movesets = &rookMovesets_;
+        magics = rookMagics;
         bits = rookBits;
+        movesetsRaw = &rookMovesetsRaw_;
     } else {
         throw std::invalid_argument("Invalid piece");
     }
 
-    // Generate all possible combinations of blockers for each square
     for (int i = 0; i < 64; ++i) {
         auto blockerVector = blockerVectors->at(i);
         std::vector<BlockerVector> combinations = {};
+        U64 movesetRawBB = movesetsRaw->at(i);
 
-        // Generate all combinations of bits[i] possible blockers
+        // Generate all combinations of bits[i] possible blockers for each square
         // i.e. 1 blocker, 2 blockers up to bits[i]
         for (int j = 1; j <= bits[i]; ++j) {
             getCombination(&combinations, &blockerVector, j);
@@ -523,8 +503,10 @@ void CBoard::generateSlidingMovesets(enumPiece piece) {
                 U64 blockerBB = 0ULL;
                 for (auto blocker : combination) CBoard::setSquare(&blockerBB, blocker);
 
-                U64 key = (blockerBB * bishopMagics[i]) >> (64 - bishopBits[i]);
-                movesets->at(i)[key] = 0ULL;
+                U64 movesetBB = CBoard::getMovesetFromBlockers(movesetRawBB, blockerBB);
+
+                U64 key = (blockerBB * magics[i]) >> (64 - bits[i]);
+                movesets->at(i)[key] = movesetBB;
             }
         }
     }
@@ -551,4 +533,8 @@ void CBoard::getCombinationRecurse(
         currCombination->at(currCombIdx) = blockers->at(i);
         CBoard::getCombinationRecurse(combinations, blockers, currCombination, i + 1, end, currCombIdx + 1, nBlockers);
     }
+}
+
+U64 CBoard::getMovesetFromBlockers(U64 movesetRawBB, U64 blockerBB) {
+    return 0ULL;
 }

@@ -72,8 +72,7 @@ class CBoard {
         // Masks generated using the classical rays technique
         void generateBlockerMasks(enumPiece piece);
         bool isLegalSquare(int rank, int file);
-        bool isEdge(int rank, int file);
-        bool isCorner(int rank, int file);
+        U64 clearEdges(U64 bb);
 
         void generateSlidingMovesets(enumPiece piece);
         void getCombination(std::vector<BlockerVector> *combinations, BlockerVector *blockers, int nBlockers);
@@ -83,6 +82,7 @@ class CBoard {
             BlockerVector *currCombination,
             int start, int end, int currCombIdx, int combSize
         );
+        U64 getMovesetFromBlockers(U64 movesetRawBB, U64 blockerBB);
 
         // square & rankN == 1 means that square is in the corresponding rank
         const U64 rank4 = 0x00000000FF000000ULL;
@@ -133,6 +133,11 @@ class CBoard {
         // Blockers in vector of squares form, to simplify generation of all possble blockers.
         std::array<BlockerVector, 64> bishopBlockerVectors_;
         std::array<BlockerVector, 64> rookBlockerVectors_;
+
+        // Bitboards representing the attack set of a bishop/rook given a particular square
+        // ignoring all blocking pieces and including all edge squares
+        Movesets bishopMovesetsRaw_;
+        Movesets rookMovesetsRaw_;
 
         // Bitboards representing the attack set of a bishop/rook given a particular square and
         // an index derived from hashing the current blocking pieces via the magic numbers in magics_64.h
