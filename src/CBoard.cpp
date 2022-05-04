@@ -335,12 +335,12 @@ U64 CBoard::bPawnPushTargets() {
 
 U64 CBoard::wPawnDoublePushTargets() {
     U64 singlePush = CBoard::wPawnPushTargets();
-    return CBoard::shiftNorthOne(singlePush) & CBoard::getEmptySquares() & CBoard::rank4;
+    return CBoard::shiftNorthOne(singlePush) & CBoard::getEmptySquares() & Constants::rank4;
 }
 
 U64 CBoard::bPawnDoublePushTargets() {
     U64 singlePush = CBoard::bPawnPushTargets();
-    return CBoard::shiftSouthOne(singlePush) & CBoard::getEmptySquares() & CBoard::rank5;
+    return CBoard::shiftSouthOne(singlePush) & CBoard::getEmptySquares() & Constants::rank5;
 }
 
 U64 CBoard::wPawnsCanPush() {
@@ -353,13 +353,13 @@ U64 CBoard::bPawnsCanPush() {
 
 U64 CBoard::wPawnsCanDoublePush() {
     U64 emptySquares = CBoard::getEmptySquares();
-    U64 emptyRank3 = CBoard::shiftSouthOne(emptySquares & CBoard::rank4) & emptySquares;
+    U64 emptyRank3 = CBoard::shiftSouthOne(emptySquares & Constants::rank4) & emptySquares;
     return CBoard::getPieceSet(enumPiece::nPawn, enumPiece::nWhite) & CBoard::shiftSouthOne(emptyRank3);
 }
 
 U64 CBoard::bPawnsCanDoublePush() {
     U64 emptySquares = CBoard::getEmptySquares();
-    U64 emptyRank6 = CBoard::shiftNorthOne(emptySquares & CBoard::rank5) & emptySquares;
+    U64 emptyRank6 = CBoard::shiftNorthOne(emptySquares & Constants::rank5) & emptySquares;
     return CBoard::getPieceSet(enumPiece::nPawn, enumPiece::nBlack) & CBoard::shiftNorthOne(emptyRank6);
 }
 

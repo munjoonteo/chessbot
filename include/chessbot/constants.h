@@ -5,27 +5,28 @@
 #include <unordered_map>
 
 #include "enums.h"
+#include "types.h"
 
 namespace Constants {
-    const unsigned int QUIET_FLAG = 0;
-    const unsigned int DOUBLE_PAWN_PUSH_FLAG = 1;
-    const unsigned int KING_CASTLE_FLAG = 2;
-    const unsigned int QUEEN_CASTLE_FLAG = 3;
-    const unsigned int CAPTURE_FLAG = 4;
-    const unsigned int EP_CAPTURE_FLAG = 5;
-    const unsigned int N_PROMO_FLAG = 8;
-    const unsigned int B_PROMO_FLAG = 9;
-    const unsigned int R_PROMO_FLAG = 10;
-    const unsigned int Q_PROMO_FLAG = 11;
-    const unsigned int N_PROMO_CAPTURE_FLAG = 12;
-    const unsigned int B_PROMO_CAPTURE_FLAG = 13;
-    const unsigned int R_PROMO_CAPTURE_FLAG = 14;
-    const unsigned int Q_PROMO_CAPTURE_FLAG = 15;
+    constexpr unsigned int QUIET_FLAG = 0;
+    constexpr unsigned int DOUBLE_PAWN_PUSH_FLAG = 1;
+    constexpr unsigned int KING_CASTLE_FLAG = 2;
+    constexpr unsigned int QUEEN_CASTLE_FLAG = 3;
+    constexpr unsigned int CAPTURE_FLAG = 4;
+    constexpr unsigned int EP_CAPTURE_FLAG = 5;
+    constexpr unsigned int N_PROMO_FLAG = 8;
+    constexpr unsigned int B_PROMO_FLAG = 9;
+    constexpr unsigned int R_PROMO_FLAG = 10;
+    constexpr unsigned int Q_PROMO_FLAG = 11;
+    constexpr unsigned int N_PROMO_CAPTURE_FLAG = 12;
+    constexpr unsigned int B_PROMO_CAPTURE_FLAG = 13;
+    constexpr unsigned int R_PROMO_CAPTURE_FLAG = 14;
+    constexpr unsigned int Q_PROMO_CAPTURE_FLAG = 15;
 
-    const unsigned int WHITE_KINGSIDE_CASTLE = 8;
-    const unsigned int WHITE_QUEENSIDE_CASTLE = 4;
-    const unsigned int BLACK_KINGSIDE_CASTLE = 2;
-    const unsigned int BLACK_QUEENSIDE_CASTLE = 1;
+    constexpr unsigned int WHITE_KINGSIDE_CASTLE = 8;
+    constexpr unsigned int WHITE_QUEENSIDE_CASTLE = 4;
+    constexpr unsigned int BLACK_KINGSIDE_CASTLE = 2;
+    constexpr unsigned int BLACK_QUEENSIDE_CASTLE = 1;
 
     const std::unordered_map<char, int> CASTLE_STRING_TO_INT_MAP = {
         {'K', WHITE_KINGSIDE_CASTLE},
@@ -64,6 +65,10 @@ namespace Constants {
         {enumSquare::a2, {6, 0}}, {enumSquare::b2, {6, 1}}, {enumSquare::c2, {6, 2}}, {enumSquare::d2, {6, 3}}, {enumSquare::e2, {6, 4}}, {enumSquare::f2, {6, 5}}, {enumSquare::g2, {6, 6}}, {enumSquare::h2, {6, 7}},
         {enumSquare::a1, {7, 0}}, {enumSquare::b1, {7, 1}}, {enumSquare::c1, {7, 2}}, {enumSquare::d1, {7, 3}}, {enumSquare::e1, {7, 4}}, {enumSquare::f1, {7, 5}}, {enumSquare::g1, {7, 6}}, {enumSquare::h1, {7, 7}},
     };
+
+    // square & rankN == 1 means that square is in the corresponding rank
+    constexpr U64 rank4 = 0x00000000FF000000ULL;
+    constexpr U64 rank5 = 0x000000FF00000000ULL;
 }
 
 #endif

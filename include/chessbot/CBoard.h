@@ -84,10 +84,6 @@ class CBoard {
         );
         U64 getMovesetFromBlockers(U64 movesetRawBB, U64 blockerBB);
 
-        // square & rankN == 1 means that square is in the corresponding rank
-        const U64 rank4 = 0x00000000FF000000ULL;
-        const U64 rank5 = 0x000000FF00000000ULL;
-
         // Elements correspond to enum enumPiece
         // i.e. pieceBB_[0] is a bitboard representing all White pieces
         std::array<U64, 8> pieceBB_;
