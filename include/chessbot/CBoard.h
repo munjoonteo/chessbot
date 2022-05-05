@@ -82,7 +82,7 @@ class CBoard {
             BlockerVector *currCombination,
             int start, int end, int currCombIdx, int combSize
         );
-        U64 getMovesetFromBlockers(U64 movesetRawBB, U64 blockerBB);
+        U64 getMovesetFromBlockers(enumSquare square, enumPiece piece, U64 movesetRawBB, U64 blockerBB);
 
         // Elements correspond to enum enumPiece
         // i.e. pieceBB_[0] is a bitboard representing all White pieces
@@ -137,6 +137,6 @@ class CBoard {
 
         // Bitboards representing the attack set of a bishop/rook given a particular square and
         // an index derived from hashing the current blocking pieces via the magic numbers in magics_64.h
-        std::array<std::array<U64, 64>, 64> bishopMovesets_;
-        std::array<std::array<U64, 64>, 64> rookMovesets_;
+        std::array<std::unordered_map<U64, U64>, 64> bishopMovesets_;
+        std::array<std::unordered_map<U64, U64>, 64> rookMovesets_;
 };

@@ -67,8 +67,11 @@ namespace Constants {
     };
 
     // square & rankN == 1 means that square is in the corresponding rank
-    constexpr U64 rank4 = 0x00000000FF000000ULL;
-    constexpr U64 rank5 = 0x000000FF00000000ULL;
+    constexpr U64 RANK_4 = 0x00000000FF000000ULL;
+    constexpr U64 RANK_5 = 0x000000FF00000000ULL;
+
+    const std::vector<std::pair<int, int>> BISHOP_RAYS = { { { 1, 1 }, { 1, -1 }, { -1, -1 }, { -1, 1 } } };
+    const std::vector<std::pair<int, int>> ROOK_RAYS = { { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } } };
 }
 
 #endif

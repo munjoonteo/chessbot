@@ -335,12 +335,12 @@ U64 CBoard::bPawnPushTargets() {
 
 U64 CBoard::wPawnDoublePushTargets() {
     U64 singlePush = CBoard::wPawnPushTargets();
-    return CBoard::shiftNorthOne(singlePush) & CBoard::getEmptySquares() & Constants::rank4;
+    return CBoard::shiftNorthOne(singlePush) & CBoard::getEmptySquares() & Constants::RANK_4;
 }
 
 U64 CBoard::bPawnDoublePushTargets() {
     U64 singlePush = CBoard::bPawnPushTargets();
-    return CBoard::shiftSouthOne(singlePush) & CBoard::getEmptySquares() & Constants::rank5;
+    return CBoard::shiftSouthOne(singlePush) & CBoard::getEmptySquares() & Constants::RANK_5;
 }
 
 U64 CBoard::wPawnsCanPush() {
@@ -353,13 +353,13 @@ U64 CBoard::bPawnsCanPush() {
 
 U64 CBoard::wPawnsCanDoublePush() {
     U64 emptySquares = CBoard::getEmptySquares();
-    U64 emptyRank3 = CBoard::shiftSouthOne(emptySquares & Constants::rank4) & emptySquares;
+    U64 emptyRank3 = CBoard::shiftSouthOne(emptySquares & Constants::RANK_4) & emptySquares;
     return CBoard::getPieceSet(enumPiece::nPawn, enumPiece::nWhite) & CBoard::shiftSouthOne(emptyRank3);
 }
 
 U64 CBoard::bPawnsCanDoublePush() {
     U64 emptySquares = CBoard::getEmptySquares();
-    U64 emptyRank6 = CBoard::shiftNorthOne(emptySquares & Constants::rank5) & emptySquares;
+    U64 emptyRank6 = CBoard::shiftNorthOne(emptySquares & Constants::RANK_5) & emptySquares;
     return CBoard::getPieceSet(enumPiece::nPawn, enumPiece::nBlack) & CBoard::shiftNorthOne(emptyRank6);
 }
 
@@ -404,12 +404,12 @@ void CBoard::generateBlockerMasks(enumPiece piece) {
     Movesets *movesetsRaw;
 
     if (piece == enumPiece::nBishop) {
-        possibleRays = { { { 1, 1 }, { 1, -1 }, { -1, -1 }, { -1, 1 } } };
+        possibleRays = Constants::BISHOP_RAYS;
         blockerMasks = &bishopBlockerMasks_;
         blockerVectors = &bishopBlockerVectors_;
         movesetsRaw = &bishopMovesetsRaw_;
     } else if (piece == enumPiece::nRook) {
-        possibleRays = { { { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } } };
+        possibleRays = Constants::ROOK_RAYS;
         blockerMasks = &rookBlockerMasks_;
         blockerVectors = &rookBlockerVectors_;
         movesetsRaw = &rookMovesetsRaw_;
@@ -465,7 +465,7 @@ U64 CBoard::clearEdges(U64 bb) {
 
 void CBoard::generateSlidingMovesets(enumPiece piece) {
     std::array<BlockerVector, 64> *blockerVectors;
-    std::array<std::array<U64, 64>, 64> *movesets;
+    std::array<std::unordered_map<U64, U64>, 64> *movesets;
     const U64 *magics;
     const int *bits;
     Movesets *movesetsRaw;
@@ -503,9 +503,15 @@ void CBoard::generateSlidingMovesets(enumPiece piece) {
                 U64 blockerBB = 0ULL;
                 for (auto blocker : combination) CBoard::setSquare(&blockerBB, blocker);
 
-                U64 movesetBB = CBoard::getMovesetFromBlockers(movesetRawBB, blockerBB);
+                U64 movesetBB = CBoard::getMovesetFromBlockers(
+                    static_cast<enumSquare>(i),
+                    piece,
+                    movesetRawBB,
+                    blockerBB
+                );
 
                 U64 key = (blockerBB * magics[i]) >> (64 - bits[i]);
+
                 movesets->at(i)[key] = movesetBB;
             }
         }
@@ -535,6 +541,29 @@ void CBoard::getCombinationRecurse(
     }
 }
 
-U64 CBoard::getMovesetFromBlockers(U64 movesetRawBB, U64 blockerBB) {
-    return 0ULL;
+U64 CBoard::getMovesetFromBlockers(enumSquare square, enumPiece piece, U64 movesetRawBB, U64 blockerBB) {
+    U64 moveset = 0ULL;
+
+    auto possibleRays = piece == enumPiece::nBishop ? Constants::BISHOP_RAYS : Constants::ROOK_RAYS;
+
+    auto coords = Constants::SQUARE_STRING_TO_COORDS_MAP.at(square);
+    int startRank = coords.first;
+    int startFile = coords.second;
+
+    for (auto ray : possibleRays) {
+        int currRank = startRank + ray.first;
+        int currFile = startFile + ray.second;
+
+        while (CBoard::isLegalSquare(currRank, currFile)) {
+            enumSquare currSquare = CBoard::getSquareFromCoords(currRank, currFile);
+            CBoard::setSquare(&moveset, currSquare);
+
+            if (CBoard::getSquare(blockerBB, currSquare) == 1) break;
+
+            currRank += ray.first;
+            currFile += ray.second;
+        }
+    }
+
+    return moveset;
 }
