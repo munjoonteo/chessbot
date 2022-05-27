@@ -28,6 +28,30 @@ namespace Constants {
     constexpr unsigned int BLACK_KINGSIDE_CASTLE = 2;
     constexpr unsigned int BLACK_QUEENSIDE_CASTLE = 1;
 
+    /* Binary version of mask
+        11111111
+        10000001
+        10000001
+        10000001
+        10000001
+        10000001
+        10000001
+        11111111
+    */
+    constexpr U64 EDGE_MASK = 18411139144890810879ULL;
+
+    /* Binary version of mask
+        10000001
+        00000000
+        00000000
+        00000000
+        00000000
+        00000000
+        00000000
+        10000001
+    */
+    constexpr U64 CORNER_MASK = 9295429630892703873ULL;
+
     const std::unordered_map<char, int> CASTLE_STRING_TO_INT_MAP = {
         {'K', WHITE_KINGSIDE_CASTLE},
         {'Q', WHITE_QUEENSIDE_CASTLE},
@@ -55,7 +79,7 @@ namespace Constants {
         {"a1", enumSquare::a1}, {"b1", enumSquare::b1}, {"c1", enumSquare::c1}, {"d1", enumSquare::d1}, {"e1", enumSquare::e1}, {"f1", enumSquare::f1}, {"g1", enumSquare::g1}, {"h1", enumSquare::h1},
     };
 
-    const std::unordered_map<enumSquare, std::pair<int, int>> SQUARE_STRING_TO_COORDS_MAP = {
+    const std::unordered_map<enumSquare, std::pair<int, int>> ENUM_TO_COORDS_MAP = {
         {enumSquare::a8, {0, 0}}, {enumSquare::b8, {0, 1}}, {enumSquare::c8, {0, 2}}, {enumSquare::d8, {0, 3}}, {enumSquare::e8, {0, 4}}, {enumSquare::f8, {0, 5}}, {enumSquare::g8, {0, 6}}, {enumSquare::h8, {0, 7}},
         {enumSquare::a7, {1, 0}}, {enumSquare::b7, {1, 1}}, {enumSquare::c7, {1, 2}}, {enumSquare::d7, {1, 3}}, {enumSquare::e7, {1, 4}}, {enumSquare::f7, {1, 5}}, {enumSquare::g7, {1, 6}}, {enumSquare::h7, {1, 7}},
         {enumSquare::a6, {2, 0}}, {enumSquare::b6, {2, 1}}, {enumSquare::c6, {2, 2}}, {enumSquare::d6, {2, 3}}, {enumSquare::e6, {2, 4}}, {enumSquare::f6, {2, 5}}, {enumSquare::g6, {2, 6}}, {enumSquare::h6, {2, 7}},

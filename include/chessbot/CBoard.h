@@ -28,6 +28,7 @@ class CBoard {
         void setSquare(U64 *board, enumSquare square) const;
         void setSquare(enumPiece board, enumSquare square);
 
+        void unsetSquare(U64 *board, enumSquare square) const;
         void unsetSquare(enumPiece board, enumSquare square);
 
         // Getters
@@ -71,8 +72,13 @@ class CBoard {
 
         // Masks generated using the classical rays technique
         void generateBlockerMasks(enumPiece piece);
+
+        U64 clearEdges(U64 bb, enumSquare square);
+
         bool isLegalSquare(int rank, int file);
-        U64 clearEdges(U64 bb);
+        bool isEdge(enumSquare square);
+        bool isCorner(enumSquare square);
+        bool isOrthogonallyAdjacent(enumSquare s1, enumSquare s2);
 
         void generateSlidingMovesets(enumPiece piece);
         void getCombination(std::vector<BlockerVector> *combinations, BlockerVector *blockers, int nBlockers);

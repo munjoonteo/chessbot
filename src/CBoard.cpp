@@ -232,6 +232,12 @@ void CBoard::setSquare(enumPiece board, enumSquare square) {
 }
 
 // Sets the given square on the given bitboard to 0, meaning it is unoccupied
+void CBoard::unsetSquare(U64 *board, enumSquare square) const {
+    if (square < 0 or square > 63) throw  std::invalid_argument("Invalid square");
+
+    if (CBoard::getSquare(*board, square)) *board ^= (1ULL << square);
+}
+
 void CBoard::unsetSquare(enumPiece board, enumSquare square) {
     if (square < 0 or square > 63) throw  std::invalid_argument("Invalid square");
 
@@ -366,7 +372,7 @@ U64 CBoard::bPawnsCanDoublePush() {
 void CBoard::generateNonSlidingMovesets(const int* deltaRank, const int* deltaFile, Movesets *moveset) {
     for (int i = 0; i < 64; ++i) {
         U64 bitboard = 0ULL;
-        std::pair<int, int> coords = Constants::SQUARE_STRING_TO_COORDS_MAP.at(static_cast<enumSquare>(i));
+        std::pair<int, int> coords = Constants::ENUM_TO_COORDS_MAP.at(static_cast<enumSquare>(i));
         int currRank = coords.first;
         int currFile = coords.second;
 
@@ -417,7 +423,7 @@ void CBoard::generateBlockerMasks(enumPiece piece) {
         throw std::invalid_argument("Invalid piece");
     }
 
-    for (auto curr : Constants::SQUARE_STRING_TO_COORDS_MAP) {
+    for (auto curr : Constants::ENUM_TO_COORDS_MAP) {
         U64 bb = 0ULL;
         BlockerVector blockers = {};
 
@@ -440,8 +446,25 @@ void CBoard::generateBlockerMasks(enumPiece piece) {
         }
 
         movesetsRaw->at(currSquare) = bb;
-        blockerMasks->at(currSquare) = CBoard::clearEdges(bb);
+        blockerMasks->at(currSquare) = CBoard::clearEdges(bb, currSquare);
         blockerVectors->at(currSquare) = blockers;
+    }
+}
+
+U64 CBoard::clearEdges(U64 bb, enumSquare square) {
+    // Remove edge squares from bitboard to create blocker mask
+    // If the current square is on an edge, extend to the corner in both directions along the edge.
+    // Do not wipe out the whole edge
+
+    if (CBoard::isEdge(square)) {
+        for (int i = 0; i < 64; ++i) {
+            enumSquare curr = static_cast<enumSquare>(i);
+            if (CBoard::isCorner(curr)) CBoard::unsetSquare(&bb, curr);
+        }
+
+        return bb;
+    } else {
+        return bb & ~Constants::EDGE_MASK;
     }
 }
 
@@ -449,18 +472,28 @@ bool CBoard::isLegalSquare(int rank, int file) {
     return (rank >= 0 and rank < 8 and file >= 0 and file < 8);
 }
 
-U64 CBoard::clearEdges(U64 bb) {
-    // Mask looks like this in binary
-    // 00000000
-    // 01111110
-    // 01111110
-    // 01111110
-    // 01111110
-    // 01111110
-    // 01111110
-    // 00000000
+bool CBoard::isEdge(enumSquare square) {
+    U64 bb = 0ULL;
+    CBoard::setSquare(&bb, square);
 
-    return bb & 35604928818740736ULL;
+    return Constants::EDGE_MASK & bb;
+}
+
+bool CBoard::isCorner(enumSquare square) {
+    U64 bb = 0ULL;
+    CBoard::setSquare(&bb, square);
+
+    return Constants::CORNER_MASK & bb;
+}
+
+bool CBoard::isOrthogonallyAdjacent(enumSquare s1, enumSquare s2) {
+    if (s1 == enumSquare::no_sq or s2 == enumSquare::no_sq) return false;
+
+    auto [s1_x, s1_y] = Constants::ENUM_TO_COORDS_MAP.at(s1);
+    auto [s2_x, s2_y] = Constants::ENUM_TO_COORDS_MAP.at(s2);
+
+    // XOR here to not include diagonals
+    return (std::abs(s1_x - s2_x) == 1) ^ (std::abs(s1_y - s2_y) == 1);
 }
 
 void CBoard::generateSlidingMovesets(enumPiece piece) {
@@ -546,7 +579,7 @@ U64 CBoard::getMovesetFromBlockers(enumSquare square, enumPiece piece, U64 moves
 
     auto possibleRays = piece == enumPiece::nBishop ? Constants::BISHOP_RAYS : Constants::ROOK_RAYS;
 
-    auto coords = Constants::SQUARE_STRING_TO_COORDS_MAP.at(square);
+    auto coords = Constants::ENUM_TO_COORDS_MAP.at(square);
     int startRank = coords.first;
     int startFile = coords.second;
 
