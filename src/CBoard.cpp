@@ -446,23 +446,29 @@ void CBoard::generateBlockerMasks(enumPiece piece) {
         }
 
         movesetsRaw->at(currSquare) = bb;
-        blockerMasks->at(currSquare) = CBoard::clearEdges(bb, currSquare);
+        blockerMasks->at(currSquare) = CBoard::clearEdges(bb, currSquare); if (piece == enumPiece::nRook) CBoard::printBB(blockerMasks->at(currSquare));
         blockerVectors->at(currSquare) = blockers;
     }
 }
 
 U64 CBoard::clearEdges(U64 bb, enumSquare square) {
     // Remove edge squares from bitboard to create blocker mask
-    // If the current square is on an edge, extend to the corner in both directions along the edge.
-    // Do not wipe out the whole edge
+    // If the current square is on an edge, only remove the corners and the edge on the other direction
 
     if (CBoard::isEdge(square)) {
-        for (int i = 0; i < 64; ++i) {
-            enumSquare curr = static_cast<enumSquare>(i);
-            if (CBoard::isCorner(curr)) CBoard::unsetSquare(&bb, curr);
-        }
+        bb &= ~Constants::CORNER_MASK;
 
-        return bb;
+        if (CBoard::isCorner(square)) return bb;
+
+        if (square < 8) {
+            return bb & ~Constants::RANK_8;
+        } else if (square >= 56) {
+            return bb & ~Constants::RANK_1;
+        } else if (square % 8 == 0) {
+            return bb & ~Constants::FILE_8;
+        } else {
+            return bb & ~Constants::FILE_1;
+        }
     } else {
         return bb & ~Constants::EDGE_MASK;
     }
