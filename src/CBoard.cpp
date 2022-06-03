@@ -425,7 +425,6 @@ void CBoard::generateBlockerMasks(enumPiece piece) {
 
     for (auto curr : Constants::ENUM_TO_COORDS_MAP) {
         U64 bb = 0ULL;
-        BlockerVector blockers = {};
 
         enumSquare currSquare = curr.first;
         int currRank = curr.second.first;
@@ -437,7 +436,6 @@ void CBoard::generateBlockerMasks(enumPiece piece) {
 
             while (CBoard::isLegalSquare(blockerRank, blockerFile)) {
                 enumSquare currBlocker = getSquareFromCoords(blockerRank, blockerFile);
-                blockers.emplace_back(currBlocker);
                 CBoard::setSquare(&bb, currBlocker);
 
                 blockerRank += ray.first;
@@ -446,7 +444,21 @@ void CBoard::generateBlockerMasks(enumPiece piece) {
         }
 
         movesetsRaw->at(currSquare) = bb;
-        blockerMasks->at(currSquare) = CBoard::clearEdges(bb, currSquare); if (piece == enumPiece::nRook) CBoard::printBB(blockerMasks->at(currSquare));
+
+        U64 noEdges = CBoard::clearEdges(bb, currSquare);
+        blockerMasks->at(currSquare) = noEdges;
+
+        // Generate blockers after edges have been cleared
+        BlockerVector blockers = {};
+
+        for (int rank = 0; rank < 8; ++rank) {
+            for (int file = 0; file < 8; ++file) {
+                enumSquare currBlocker = CBoard::getSquareFromCoords(rank, file);
+                if (CBoard::getSquare(noEdges, currBlocker)) {
+                    blockers.emplace_back(currBlocker);
+                }
+            }
+        }
         blockerVectors->at(currSquare) = blockers;
     }
 }
@@ -531,7 +543,7 @@ void CBoard::generateSlidingMovesets(enumPiece piece) {
         U64 movesetRawBB = movesetsRaw->at(i);
 
         // Generate all combinations of bits[i] possible blockers for each square
-        // i.e. 1 blocker, 2 blockers up to bits[i]
+        // i.e. 1 blocker, 2 blockers up to bits[i] blockers
         for (int j = 1; j <= bits[i]; ++j) {
             getCombination(&combinations, &blockerVector, j);
 
