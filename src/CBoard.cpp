@@ -407,18 +407,15 @@ void CBoard::generateBlockerMasks(enumPiece piece) {
     std::vector<std::pair<int, int>> possibleRays;
     Movesets *blockerMasks;
     std::array<BlockerVector, 64> *blockerVectors;
-    Movesets *movesetsRaw;
 
     if (piece == enumPiece::nBishop) {
         possibleRays = Constants::BISHOP_RAYS;
         blockerMasks = &bishopBlockerMasks_;
         blockerVectors = &bishopBlockerVectors_;
-        movesetsRaw = &bishopMovesetsRaw_;
     } else if (piece == enumPiece::nRook) {
         possibleRays = Constants::ROOK_RAYS;
         blockerMasks = &rookBlockerMasks_;
         blockerVectors = &rookBlockerVectors_;
-        movesetsRaw = &rookMovesetsRaw_;
     } else {
         throw std::invalid_argument("Invalid piece");
     }
@@ -443,7 +440,6 @@ void CBoard::generateBlockerMasks(enumPiece piece) {
             }
         }
 
-        movesetsRaw->at(currSquare) = bb;
 
         U64 noEdges = CBoard::clearEdges(bb, currSquare);
         blockerMasks->at(currSquare) = noEdges;
@@ -519,20 +515,17 @@ void CBoard::generateSlidingMovesets(enumPiece piece) {
     std::array<std::unordered_map<U64, U64>, 64> *movesets;
     const U64 *magics;
     const int *bits;
-    Movesets *movesetsRaw;
 
     if (piece == enumPiece::nBishop) {
         blockerVectors = &bishopBlockerVectors_;
         movesets = &bishopMovesets_;
         magics = bishopMagics;
         bits = bishopBits;
-        movesetsRaw = &bishopMovesetsRaw_;
     } else if (piece == enumPiece::nRook) {
         blockerVectors = &rookBlockerVectors_;
         movesets = &rookMovesets_;
         magics = rookMagics;
         bits = rookBits;
-        movesetsRaw = &rookMovesetsRaw_;
     } else {
         throw std::invalid_argument("Invalid piece");
     }
@@ -540,7 +533,6 @@ void CBoard::generateSlidingMovesets(enumPiece piece) {
     for (int i = 0; i < 64; ++i) {
         auto blockerVector = blockerVectors->at(i);
         std::vector<BlockerVector> combinations = {};
-        U64 movesetRawBB = movesetsRaw->at(i);
 
         // Generate all combinations of bits[i] possible blockers for each square
         // i.e. 1 blocker, 2 blockers up to bits[i] blockers
@@ -557,7 +549,6 @@ void CBoard::generateSlidingMovesets(enumPiece piece) {
                 U64 movesetBB = CBoard::getMovesetFromBlockers(
                     static_cast<enumSquare>(i),
                     piece,
-                    movesetRawBB,
                     blockerBB
                 );
 
@@ -592,7 +583,7 @@ void CBoard::getCombinationRecurse(
     }
 }
 
-U64 CBoard::getMovesetFromBlockers(enumSquare square, enumPiece piece, U64 movesetRawBB, U64 blockerBB) {
+U64 CBoard::getMovesetFromBlockers(enumSquare square, enumPiece piece, U64 blockerBB) {
     U64 moveset = 0ULL;
 
     auto possibleRays = piece == enumPiece::nBishop ? Constants::BISHOP_RAYS : Constants::ROOK_RAYS;
